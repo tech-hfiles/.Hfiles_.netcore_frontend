@@ -1,0 +1,31 @@
+@media (min-width: 375px) {
+    .custom_title {
+      font-size: 22px;
+    }
+
+    .custom_subtext{
+        font-size:15px;
+    }
+}
+
+
+@media (min-width: 425px) {
+    .custom_title {
+      font-size: 25px;
+    }
+  
+    .custom_subtext{
+        font-size:16px;
+    }
+}
+
+
+@media (min-width: 600px) {
+    .custom_title {
+      font-size: 27px;
+    }
+  
+    .custom_subtext{
+        font-size:17px;
+    }
+}

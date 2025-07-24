@@ -1,0 +1,135 @@
+
+
+.img_box{
+    width: 4rem;
+    height: 4rem;
+}
+
+.icons_img{
+    width: 2rem;
+    height: 2rem;
+}
+
+.custom_create_folder{
+    padding-top: 14px;
+    padding-bottom: 14px;
+    font-size:14px;
+}
+
+.custom_add_family{
+    font-size:15px;
+    padding-top: 13px;
+    padding-bottom: 13px;
+}
+
+@media (min-width: 375px) and (max-width: 425px) {
+    .img_box {
+      width: 4.4rem;
+      height: 4.4rem;
+    }
+  
+    .icons_img {
+      width: 2.3rem;
+      height: 2.3rem;
+    }
+
+    .custom_create_folder{
+        padding-top: 16px;
+        padding-bottom: 16px;
+        font-size:16px;
+        gap: 15px;
+    }
+
+    .custom_add_family{
+        font-size:17px;
+        padding-top: 13px;
+        padding-bottom: 13px;
+    }
+
+    .custom_icon{
+        font-size:22px;
+    }
+
+    .custom_text{
+        font-size:17px;
+    }
+
+    .custom_category_title{
+        font-size: 13px;
+    }
+  }
+
+
+@media (min-width: 425px) and (max-width: 560px) {
+    .img_box {
+      width: 4.9rem;
+      height: 4.9rem;
+    }
+  
+    .icons_img {
+      width: 2.8rem;
+      height: 2.8rem;
+    }
+
+    .custom_create_folder{
+        padding-top: 16px;
+        padding-bottom: 16px;
+        font-size:18px;
+        gap: 16px;
+    }
+
+    .custom_add_family{
+        font-size:18px;
+        padding-top: 14px;
+        padding-bottom: 14px;
+    }
+
+    .custom_icon{
+        font-size:23px;
+    }
+
+    .custom_text{
+        font-size:19px;
+    }
+
+    .custom_category_title{
+        font-size: 14px;
+    }
+  }
+
+  @media (min-width: 560px) and (max-width: 768px) {
+    .img_box {
+      width: 5.2rem;
+      height: 5.2rem;
+    }
+  
+    .icons_img {
+      width: 3.1rem;
+      height: 3.1rem;
+    }
+
+    .custom_create_folder{
+        padding-top: 16px;
+        padding-bottom: 16px;
+        font-size:20px;
+        gap: 17px;
+    }
+
+    .custom_add_family{
+        font-size:19px;
+        padding-top: 15px;
+        padding-bottom: 15px;
+    }
+
+    .custom_icon{
+        font-size:24px;
+    }
+
+    .custom_text{
+        font-size:19px;
+    }
+
+    .custom_category_title{
+        font-size: 15px;
+    }
+  }
