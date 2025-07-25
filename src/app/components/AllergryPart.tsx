@@ -30,9 +30,10 @@ interface AllergyPartProps {
     handleSaveAllergies: () => void;
     isAllergySaving: boolean;
     openAllergyEditModal: (allergyId: number, allergyName: string) => void;
+    closeMedicationModal : () => void ;
 }
 
-const AllergryPart: React.FC<AllergyPartProps> = ({
+const AllergyPart: React.FC<AllergyPartProps> = ({
     renderAllergyWarning,
     listAllergies,
     allergySelections,
@@ -49,7 +50,9 @@ const AllergryPart: React.FC<AllergyPartProps> = ({
     toggleModal,
     handleSaveAllergies,
     isAllergySaving,
-    openAllergyEditModal
+    openAllergyEditModal,
+    closeMedicationModal
+    
 }) => {
     const midPoint = Math.ceil(listAllergies.length / 2);
     const leftAllergies = listAllergies.slice(0, midPoint);
@@ -137,7 +140,10 @@ const AllergryPart: React.FC<AllergyPartProps> = ({
                             <td colSpan={3} className="px-2 sm:px-4 py-3 bg-gray-50">
                                 <div className="border border-gray-200 rounded-lg p-4 medication-dropdown" onClick={(e) => {
                                     e.stopPropagation();
-                                    toggleMedicationTextarea();
+                                    toggleMedicationDropdown();
+                                   toggleMedicationTextarea();
+                                   closeMedicationModal();
+                                
                                 }}>
                                     <div className="flex items-center gap-2 mb-3 cursor-pointer" >
                                         <h4 className="text-sm font-semibold text-gray-700">Medications:</h4>
@@ -241,4 +247,4 @@ const AllergryPart: React.FC<AllergyPartProps> = ({
     )
 }
 
-export default AllergryPart
+export default AllergyPart

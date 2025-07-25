@@ -77,7 +77,7 @@ const MedicationModal: React.FC<MedicationModalProps> = ({
     handleDoneMedicationModal
 }) => {
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-500 p-4 border-4 border-red-500">
             <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 w-full max-w-md mx-4 max-h-[80vh] overflow-y-auto">
                 <div className="flex justify-between items-center mb-4">
                     <h2 className="text-lg font-semibold text-blue-800">Enter Medication Names</h2>
@@ -503,6 +503,7 @@ const MedicalPage = () => {
 
     const toggleAllergySection = () => {
         setIsAllergyOpen(!isAllergyOpen);
+        
     };
 
     const toggleModal = () => {
@@ -776,6 +777,7 @@ const MedicalPage = () => {
     };
 
     const closeMedicationModal = () => {
+        console.log("working");
         setIsMedicationModalOpen(false);
         setSelectedAllergyIndex(null);
         setNewMedication("");
@@ -785,6 +787,7 @@ const MedicalPage = () => {
 
     const toggleMedicationDropdown = () => {
         setIsMedicationDropdownOpen(!isMedicationDropdownOpen);
+       
     };
 
     const toggleMedicationTextarea = () => {
@@ -1278,7 +1281,8 @@ const MedicalPage = () => {
                         handleAllergyChange={handleAllergyChange} toggleMedicationTextarea={toggleMedicationTextarea} isMedicationTextareaOpen={isMedicationTextareaOpen}
                         medicationTextarea={medicationTextarea} setMedicationTextarea={setMedicationTextarea} setIsMedicationTextareaOpen={setIsMedicationTextareaOpen} handleSaveMedicationTextarea={handleSaveMedicationTextarea}
                         toggleModal={toggleModal} handleSaveAllergies={handleSaveAllergies} isAllergySaving={isAllergySaving}
-                        openAllergyEditModal={openAllergyEditModal} />
+                        openAllergyEditModal={openAllergyEditModal} closeMedicationModal = {closeMedicationModal}
+                           />
                 )}
 
                 {/* Medical History Section */}
@@ -1397,7 +1401,7 @@ const MedicalPage = () => {
 
                 {/* Edit Allergy Modal */}
                 {isAllergyEditModalOpen && (
-                    <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+                    <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-5 p-4">
                         <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 w-full max-w-md mx-4">
                             <div className="flex justify-between items-center mb-3 sm:mb-4">
                                 <h2 className="text-base sm:text-lg font-semibold text-blue-800">Edit Allergy</h2>
@@ -1437,6 +1441,7 @@ const MedicalPage = () => {
                         setNewMedication={setNewMedication}
                         medications={medications}
                         handleDoneMedicationModal={handleDoneMedicationModal}
+                        
                     />
                 )}
                 {/* Edit Modal */}

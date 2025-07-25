@@ -368,17 +368,18 @@ const SignUp = () => {
 
                   {/* Date of Birth with Calendar */}
                   <div className="relative">
-                    <input
-                      id="dobPicker"
-                      type="date"
-                      name="dob"
-                      value={convertToDateInputFormat(formik.values.dob)}
-                      onChange={(e) => handleDateChange(e.target.value)}
-                      onBlur={formik.handleBlur}
-                       placeholder="DOB"
-                      className="w-full px-4   py-3 rounded-lg bg-black text-gray-500   font-montserrat-300 border border-black focus:outline-none focus:ring-0 "
-                      max={new Date().toISOString().split("T")[0]}
-                    />
+                  <input
+  id="dobPicker"
+  type="date"
+  name="dob"
+  value={convertToDateInputFormat(formik.values.dob)}
+  onChange={(e) => handleDateChange(e.target.value)}
+  onBlur={formik.handleBlur}
+  className={`w-full px-4 py-3 rounded-lg bg-white border border-black focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+    formik.values.dob ? 'text-black' : 'text-gray-400'
+  }`}
+  max={new Date().toISOString().split("T")[0]}
+/>
 
                     {formik.touched.dob && formik.errors.dob && (
                       <p className="text-red-500 text-xs ">{formik.errors.dob}</p>

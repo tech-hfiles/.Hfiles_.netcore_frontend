@@ -10,6 +10,7 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
 
+
   images: {
     remotePatterns: [
       {
@@ -30,9 +31,15 @@ const nextConfig = {
         port: '',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'd7cop3y0lcg80.cloudfront.net',
+        port: '',
+        pathname: '/**',
+      },
     ],
   },
-
+  
   experimental: {
     esmExternals: false,
   },
