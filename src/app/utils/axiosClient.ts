@@ -1,6 +1,8 @@
 import axios from "axios";
 import { toast } from "react-toastify";
 import { decryptData } from "./webCrypto";
+import { useRouter } from "next/navigation";
+import Router from "next/router";
 
 const getUserToken = async () => {
   const encryptedToken = localStorage.getItem("authToken");
@@ -20,6 +22,7 @@ const getUserToken = async () => {
 
 const axiosInstance = axios.create({
   baseURL: "https://test.testhfiles.in/api/",
+  withCredentials:true
 });
 
 axiosInstance.interceptors.request.use(
@@ -53,8 +56,14 @@ axiosInstance.interceptors.response.use(
 
     if (status === 401) {
       toast.error(message);
+       localStorage.clear(); // Optional: clear user data
+        Router.push("/login");
       // window.location.href = "/";
-    } else {
+    } else if (status === 404 && error.response.data.data === null){
+
+    }
+    
+    else {
       toast.error(message2);
     }
 

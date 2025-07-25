@@ -1,9 +1,11 @@
 import { faWhatsapp } from "@fortawesome/free-brands-svg-icons";
 import { faEnvelope } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useRouter } from "next/navigation";
 import React from "react";
 
 const DynamicFooter = () => {
+      const router = useRouter();
     return (
         <div className="w-full text-white px-4 py-3 bg-[#0331B5]">
             <div className="w-full mx-auto flex flex-col sm:flex-row sm:justify-between items-center text-center sm:text-left gap-3">
@@ -18,14 +20,12 @@ const DynamicFooter = () => {
                         Terms & Conditions
                     </a>
                     <span className="mx-1">|</span>
-                    <a
-                        href="https://hfiles.in/privacypolicy"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="hover:underline text-sm text-white font-medium"
-                    >
-                        Privacy Policy
-                    </a>
+                    <button
+      onClick={() => router.push('/PrivacyPolicy')}
+      className="hover:underline text-sm text-white font-medium"
+    >
+      Privacy Policy
+    </button>
                 </div>
 
 

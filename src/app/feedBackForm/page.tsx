@@ -5,16 +5,43 @@ import { useRouter } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import MasterHome from '../components/MasterHome';
+import { decryptData } from '../utils/webCrypto';
+import { FeedBackAdd } from '../services/HfilesServiceApi';
+import { toast, ToastContainer } from 'react-toastify';
 
 const FeedbackPage = () => {
     const router = useRouter();
     const [feedback, setFeedback] = useState('');
     const [rating, setRating] = useState(0);
 
-    const handleSubmit = () => {
-        console.log('Feedback submitted:', { feedback, rating });
-        alert('Thank you for your feedback!');
+      const getUserId = async (): Promise<number> => {
+        try {
+            const encryptedUserId = localStorage.getItem("userId");
+            if (!encryptedUserId) return 0;
+
+            const userIdStr = await decryptData(encryptedUserId); // decrypted string: "123"
+            return parseInt(userIdStr, 10); // converts to number 123
+        } catch (error) {
+            console.error("Error getting userId:", error);
+            return 0;
+        }
     };
+
+
+    const handleSubmit = async () => {
+    try {
+        const userId = await getUserId();
+        const payload = {
+            feedback: feedback.trim()
+        };
+        const response = await FeedBackAdd(userId, payload);
+        toast.success(`${response.data.message}`)
+        setFeedback('');
+        setRating(0);
+    } catch (error) {
+        console.error('Error submitting feedback:', error);
+    }
+};
 
     return (
         <MasterHome>
@@ -122,6 +149,7 @@ const FeedbackPage = () => {
                     </div>
                 </div>
             </div>
+            <ToastContainer />
         </MasterHome>
     );
 };

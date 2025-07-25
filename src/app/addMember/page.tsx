@@ -90,7 +90,7 @@ const Page = () => {
             relation: '',
             dob: '',
             email: '',
-            countryCode: '',
+            countryCode: JSON.stringify({ country: 'IND', dialingCode: '+91' }),
             phoneNumber: ''
         },
         validationSchema: validationSchema,

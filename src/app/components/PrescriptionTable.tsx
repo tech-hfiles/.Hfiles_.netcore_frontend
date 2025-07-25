@@ -205,71 +205,88 @@ const PrescriptionTable: React.FC<PrescriptionTableProps> = ({
                 </div>
             )}
 
-            <div className="overflow-x-auto">
-                <table className="w-full border-separate  text-sm text-center ">
-                    <thead>
-                        <tr>
-                            {showCheckbox && (
-                                <th className="p-2 border border-black rounded-l-lg bg-cyan-300 font-semibold text-black">
-                                    Select
-                                </th>
-                            )}
-                            <th className="p-2 border border-black bg-cyan-300 font-semibold text-black">Member</th>
-                            <th className="p-2 border border-black bg-cyan-300 font-semibold text-black">Condition</th>
-                            <th className="p-2 border border-black bg-cyan-300 font-semibold text-black">Medication</th>
-                            <th className="p-2 border border-black bg-cyan-300 font-semibold text-black">Dosage</th>
-                            <th className="p-2 border border-black bg-cyan-300 font-semibold text-black">Schedule</th>
-                            <th className="p-2 border border-black bg-cyan-300 font-semibold text-black">Timing</th>
-                            <th className="p-2 border border-black rounded-r-lg bg-cyan-300 font-semibold text-black">Action</th>
-                        </tr>
-                    </thead>
+           <div className="overflow-x-auto">
+  {prescriptions && prescriptions.length > 0 ? (
+    <table className="w-full border-separate text-sm text-center">
+      <thead>
+        <tr>
+          {showCheckbox && (
+            <th className="p-2 border border-black rounded-l-lg bg-cyan-300 font-semibold text-black">
+              Select
+            </th>
+          )}
+          <th className="p-2 border border-black bg-cyan-300 font-semibold text-black">Member</th>
+          <th className="p-2 border border-black bg-cyan-300 font-semibold text-black">Condition</th>
+          <th className="p-2 border border-black bg-cyan-300 font-semibold text-black">Medication</th>
+          <th className="p-2 border border-black bg-cyan-300 font-semibold text-black">Dosage</th>
+          <th className="p-2 border border-black bg-cyan-300 font-semibold text-black">Schedule</th>
+          <th className="p-2 border border-black bg-cyan-300 font-semibold text-black">Timing</th>
+          <th className="p-2 border border-black rounded-r-lg bg-cyan-300 font-semibold text-black">Action</th>
+        </tr>
+      </thead>
 
-                    <tbody>
-                        {prescriptions?.map((item: any, index) => {
-                            const isSelected = selectedIndexes.includes(index);
-                            return (
-                                <tr
-                                    key={index}
-                                    className={`border border-black group ${isSelected ? 'bg-blue-100' : 'bg-white'} hover:bg-blue-50 transition`}
-                                >
-                                    {showCheckbox && (
-                                        <td className="p-3 border border-black">
-                                            <input
-                                                type="checkbox"
-                                                checked={isSelected}
-                                                onChange={(e) => handleSelectChange(index, e.target.checked)}
-                                                className="w-5 h-5 accent-black"
-                                            />
-                                        </td>
-                                    )}
-                                    <td className="p-3 border border-black">{item.memberName}</td>
-                                    <td className="p-3 border border-black">{item.condition}{item.otherCondition ? `, ${item.otherCondition}` : ''}</td>
-                                    <td className="p-3 border border-black">{item.medicine}</td>
-                                    <td className="p-3 border border-black">{item.dosage}</td>
-                                    <td className="p-3 border border-black">{item.schedule}</td>
-                                    <td className="p-3 border border-black whitespace-pre-line">{item.timings}</td>
-                                    <td className="p-3 border border-black whitespace-pre-line flex items-center justify-center gap-2">
-                                        <button
-                                            className={`px-4 py-1 rounded text-black ${isSelected ? 'bg-green-700 border border-black text-white' : 'bg-sky-200 border border-black'}`}
-                                            onClick={() => onEdit?.(index)}
-                                        >
-                                            Edit
-                                        </button>
+      <tbody>
+        {prescriptions.map((item: any, index) => {
+          const isSelected = selectedIndexes.includes(index);
+          return (
+            <tr
+              key={index}
+              className={`border border-black group ${isSelected ? 'bg-blue-100' : 'bg-white'} hover:bg-blue-50 transition`}
+            >
+              {showCheckbox && (
+                <td className="p-3 border border-black">
+                  <input
+                    type="checkbox"
+                    checked={isSelected}
+                    onChange={(e) => handleSelectChange(index, e.target.checked)}
+                    className="w-5 h-5 accent-black"
+                  />
+                </td>
+              )}
+              <td className="p-3 border border-black">{item.memberName}</td>
+              <td className="p-3 border border-black">
+                {item.condition}
+                {item.otherCondition ? `, ${item.otherCondition}` : ''}
+              </td>
+              <td className="p-3 border border-black">{item.medicine}</td>
+              <td className="p-3 border border-black">{item.dosage}</td>
+              <td className="p-3 border border-black">{item.schedule}</td>
+              <td className="p-3 border border-black whitespace-pre-line">{item.timings}</td>
+              <td className="p-3 border border-black whitespace-pre-line flex items-center justify-center gap-2">
+                <button
+                  className={`px-4 py-1 rounded text-black ${
+                    isSelected ? 'bg-green-700 border border-black text-white' : 'bg-sky-200 border border-black'
+                  }`}
+                  onClick={() => onEdit?.(index)}
+                >
+                  Edit
+                </button>
 
-                                        <button
-                                            className="text-black hover:text-red-500 transition opacity-0 group-hover:opacity-100"
-                                            onClick={() => handleDelete(item.id)} // item.id is like 22
-                                        >
-                                            <FontAwesomeIcon icon={faTrash} />
-                                        </button>
-                                    </td>
-                                </tr>
-                            );
-                        })}
+                <button
+                  className="text-black hover:text-red-500 transition opacity-0 group-hover:opacity-100"
+                  onClick={() => handleDelete(item.id)}
+                >
+                  <FontAwesomeIcon icon={faTrash} />
+                </button>
+              </td>
+            </tr>
+          );
+        })}
+      </tbody>
+    </table>
+  ) : (
+   <div className="w-full flex flex-col justify-center items-center py-12">
+  <img
+    src="/9d3b1e529ff482abe61dba009ba6478444538807.png"
+    alt="No data found"
+    className="w-68 h-68 object-contain mb-4"
+  />
+  <p className="text-black text-sm">No Data Found</p>
+</div>
 
-                    </tbody>
-                </table>
-            </div>
+  )}
+</div>
+
         </div>
     );
 };

@@ -33,9 +33,9 @@ interface FileItem {
 }
 
 // Updated FileReportCard component with checkbox functionality
-const FileReportCard: React.FC<{ 
-    file: FileItem; 
-    onDelete: (fileId: number) => void; 
+const FileReportCard: React.FC<{
+    file: FileItem;
+    onDelete: (fileId: number) => void;
     onEdit: (file: FileItem) => void;
     isSelectMode: boolean;
     isSelected: boolean;
@@ -83,9 +83,19 @@ const FileReportCard: React.FC<{
         if (isSelectMode) {
             onToggleSelect(file.id);
         } else {
-            router.push(`/view-report?src=${encodeURIComponent(file.reportUrl)}&title=${encodeURIComponent(file.reportName)}&date=${file.epochTime}&category=${encodeURIComponent(file.reportCategoryName || 'No Category')}&reportId=${file.id}`);
+            const url = file.reportUrl;
+            const extension = url.split('.').pop()?.toLowerCase();
+
+            const isImageOrPdf = ['pdf', 'jpg', 'jpeg', 'png', 'gif', 'webp'].includes(extension || '');
+
+            if (isImageOrPdf) {
+                window.open(url, '_blank');
+            } else {
+            }
         }
     };
+
+
 
     const handleCheckboxClick = (e: React.MouseEvent) => {
         e.stopPropagation();
@@ -144,16 +154,15 @@ const FileReportCard: React.FC<{
     };
 
     return (
-        <div 
-            className={`bg-[#EFF5FF] rounded-xl border border-gray-200 shadow-sm min-w-[150px] sm:min-w-[200px] xl:min-w-[210px] relative cursor-pointer transition-all duration-200 ${
-                isSelectMode ? 'hover:shadow-md' : ''
-            } ${isSelected ? ' shadow-md' : ''}`}
+        <div
+            className={`bg-[#EFF5FF] rounded-xl border border-gray-200 shadow-sm min-w-[150px] sm:min-w-[200px] xl:min-w-[210px] relative cursor-pointer transition-all duration-200 ${isSelectMode ? 'hover:shadow-md' : ''
+                } ${isSelected ? ' shadow-md' : ''}`}
             onClick={handleClick}
         >
             {/* Selection checkbox */}
             {isSelectMode && (
                 <div className="absolute top-2 left-2 z-10">
-                    <div 
+                    <div
                         className="w-5 h-5  bg-white border-2 border-gray-300 flex items-center justify-center cursor-pointer  transition-colors"
                         onClick={handleCheckboxClick}
                     >
@@ -223,13 +232,34 @@ const FileReportCard: React.FC<{
                 )}
             </div>
 
-            <div className="px-2 mt-1">
+            {/* <div className="px-2 mt-1">
                 <img
                     src={file.reportUrl}
                     alt={file.reportName}
                     className="w-[90%] h-[120px] sm:h-[150px] xl:h-[160px] object-cover rounded-md mx-auto"
                 />
+            </div> */}
+            <div className="px-2 mt-1" onClick={handleClick}>
+                {file.reportUrl.toLowerCase().endsWith('.pdf') ? (
+                    <iframe
+                        src={`${file.reportUrl}`}
+                        title={file.reportName}
+                        className="w-full h-full border-none"
+                        scrolling="no"
+
+                    />
+
+                ) : (
+                    <img
+                        src={file.reportUrl}
+                        alt={file.reportName}
+                        className="w-[90%] h-[120px] sm:h-[150px] xl:h-[160px] object-cover rounded-md mx-auto"
+                    />
+                )}
             </div>
+
+
+
 
             <div className="p-2 bg-[#F9F9F9]">
                 <div className='w-[90%] mx-auto'>
@@ -381,8 +411,8 @@ export default function Folders() {
     const [lastUpdated, setLastUpdated] = useState('');
     const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
-        const router = useRouter();
-    
+    const router = useRouter();
+
     // Share functionality states
     const [isSelectMode, setIsSelectMode] = useState(false);
     const [selectedReports, setSelectedReports] = useState<Set<number>>(new Set());
@@ -591,7 +621,7 @@ export default function Folders() {
         setShareData(null);
     };
 
- const handleWhatsAppShare = () => {
+    const handleWhatsAppShare = () => {
         if (!shareData) return;
 
         const cleanShareId = shareData.shareUrl;
@@ -1010,74 +1040,99 @@ const UploadPopup: React.FC<UploadPopupProps> = ({ onClose, onUploadSuccess, fol
 
                 {/* File Preview */}
                 {uploadedFiles.length > 0 && (
-                    <div className="mt-6 space-y-4 max-h-[300px] overflow-y-auto pr-2">
-                        {uploadedFiles.map((fileItem, index) => (
-                            <div
-                                key={index}
-                                className="flex items-start gap-4 bg-white border border-gray-300 p-4 rounded-md shadow-sm"
-                            >
-                                <img
-                                    src={fileItem.previewImage}
-                                    alt="Preview"
-                                    className="w-14 h-16 object-cover border"
-                                />
-                                <div className="flex-1">
-                                    <p className="text-xs text-black mb-1">Click to rename file</p>
-                                    <input
-                                        type="text"
-                                        value={fileItem.fileName}
-                                        onChange={(e) => handleNameChange(index, e.target.value)}
-                                        className="w-full font-semibold text-blue-700 border border-gray-300 rounded-md px-2 py-1"
-                                        disabled={isUploading}
-                                    />
-                                    <select
-                                        value={fileItem.category}
-                                        onChange={(e) => handleCategoryChange(index, e.target.value)}
-                                        className="w-full mt-2 border border-gray-300 rounded-md px-2 py-1"
-                                        disabled={isUploading}
-                                    >
-                                        <option value="">Select Report Category</option>
-                                        <option value="Lab Report">Lab Report</option>
-                                        <option value="Dental Report">Dental Report</option>
-                                        <option value="Immunization">Immunization</option>
-                                        <option value="Medications/Prescription">Medications/Prescription</option>
-                                        <option value="Radiology">Radiology</option>
-                                        <option value="Ophthalmology">Ophthalmology</option>
-                                        <option value="Special Report">Special Report</option>
-                                        <option value="Invoices/Mediclaim Insurance">Invoices/Mediclaim Insurance</option>
-                                    </select>
-                                </div>
-                                <div className="text-xs text-black">
-                                    {formatFileSize(fileItem.file.size)}
-                                </div>
-                                <button
-                                    onClick={() => handleRemove(index)}
-                                    className="text-red-600 hover:text-red-800 mt-4"
-                                    disabled={isUploading}
-                                >
-                                    <span className="text-xl">⊖</span> Remove
-                                </button>
-                            </div>
-                        ))}
+    <div className="mt-4 sm:mt-6 space-y-3 sm:space-y-4 max-h-[300px] sm:max-h-[400px] overflow-y-auto pr-1 sm:pr-2">
+        {uploadedFiles.map((fileItem, index) => (
+            <div
+                key={index}
+                className="flex flex-col sm:flex-row sm:items-start gap-3 sm:gap-4 bg-white border border-gray-300 p-3 sm:p-4 rounded-md shadow-sm"
+            >
+                {/* Mobile: Image and remove button in same row */}
+                <div className="flex items-start justify-between sm:contents">
+                    <img
+                        src={fileItem.previewImage}
+                        alt="Preview"
+                        className="w-12 h-14 sm:w-14 sm:h-16 object-cover border rounded flex-shrink-0"
+                    />
+                    
+                    {/* Remove button - visible on mobile, hidden on desktop (will show in desktop position) */}
+                    <button
+                        onClick={() => handleRemove(index)}
+                        className="text-red-600 hover:text-red-800 p-1 sm:hidden"
+                        disabled={isUploading}
+                    >
+                        <span className="text-lg">⊖</span>
+                    </button>
+                </div>
 
-                        <div className="flex justify-center mt-6">
-                            <button
-                                onClick={handleUpload}
-                                disabled={isUploading || uploadedFiles.length === 0}
-                                className="bg-[#0331B5] hover:bg-[#022e9f] text-white font-semibold px-6 py-3 rounded-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-                            >
-                                {isUploading ? (
-                                    <>
-                                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                                        Uploading...
-                                    </>
-                                ) : (
-                                    'Save Reports'
-                                )}
-                            </button>
-                        </div>
+                {/* File details section */}
+                <div className="flex-1 space-y-2 sm:space-y-1">
+                    <p className="text-xs text-black mb-1">Click to rename file</p>
+                    <input
+                        type="text"
+                        value={fileItem.fileName}
+                        onChange={(e) => handleNameChange(index, e.target.value)}
+                        className="w-full font-semibold text-blue-700 border border-gray-300 rounded-md px-3 py-2 text-sm sm:text-base"
+                        disabled={isUploading}
+                    />
+                    <select
+                        value={fileItem.category}
+                        onChange={(e) => handleCategoryChange(index, e.target.value)}
+                        className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm sm:text-base"
+                        disabled={isUploading}
+                    >
+                        <option value="">Select Report Category</option>
+                        <option value="Lab Report">Lab Report</option>
+                        <option value="Dental Report">Dental Report</option>
+                        <option value="Immunization">Immunization</option>
+                        <option value="Medications/Prescription">Medications/Prescription</option>
+                        <option value="Radiology">Radiology</option>
+                        <option value="Ophthalmology">Ophthalmology</option>
+                        <option value="Special Report">Special Report</option>
+                        <option value="Invoices/Mediclaim Insurance">Invoices/Mediclaim Insurance</option>
+                    </select>
+                    
+                    {/* File size - positioned under inputs on mobile */}
+                    <div className="text-xs text-gray-600 sm:hidden">
+                        {formatFileSize(fileItem.file.size)}
                     </div>
+                </div>
+
+                {/* Desktop: File size and remove button */}
+                <div className="hidden sm:flex sm:flex-col sm:items-end sm:gap-2">
+                    <div className="text-xs text-black">
+                        {formatFileSize(fileItem.file.size)}
+                    </div>
+                    <button
+                        onClick={() => handleRemove(index)}
+                        className="text-red-600 hover:text-red-800 px-2 py-1 rounded hover:bg-red-50 transition-colors"
+                        disabled={isUploading}
+                    >
+                        <span className="text-xl">⊖</span>
+                        <span className="ml-1 text-sm">Remove</span>
+                    </button>
+                </div>
+            </div>
+        ))}
+
+        {/* Upload button */}
+        <div className="flex justify-center mt-4 sm:mt-6 px-4 sm:px-0">
+            <button
+                onClick={handleUpload}
+                disabled={isUploading || uploadedFiles.length === 0}
+                className="w-full sm:w-auto bg-[#0331B5] hover:bg-[#022e9f] text-white font-semibold px-6 py-3 sm:py-3 rounded-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-base sm:text-base min-h-[48px] active:bg-[#021c7a] transition-colors"
+            >
+                {isUploading ? (
+                    <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                        Uploading...
+                    </>
+                ) : (
+                    'Save Reports'
                 )}
+            </button>
+        </div>
+    </div>
+)}
             </div>
         </div>
     );

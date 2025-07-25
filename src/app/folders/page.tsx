@@ -13,6 +13,7 @@ import { decryptData } from '../utils/webCrypto';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit } from '@fortawesome/free-regular-svg-icons';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
+import { ChevronDown } from 'lucide-react';
 
 interface FolderData {
     folderId: number;
@@ -79,6 +80,9 @@ export default function Folders() {
     const [searchTerm, setSearchTerm] = useState('');
     const [filteredFolderDataList, setFilteredFolderDataList] = useState<FolderData[]>([]);
 
+        const [memberList, setMemberList] = useState<Member[]>([]); 
+    const [selectedUser, setSelectedUser] = useState<string>('all');
+
     const getUserId = async (): Promise<number> => {
         try {
             const encryptedUserId = localStorage.getItem("userId");
@@ -99,7 +103,8 @@ export default function Folders() {
                 toast.error("Please log in to view members.");
                 return;
             }
-            const response = await FolderList(currentUserId)
+            const includeArray = selectedUser !== 'all' ? [parseInt(selectedUser)] : [];
+            const response = await FolderList(currentUserId,includeArray)
             const folders = response?.data?.data || [];
             setFolderDataList(folders);
             setFilteredFolderDataList(folders);
@@ -163,7 +168,7 @@ export default function Folders() {
 
     useEffect(() => {
         DataListFolder();
-    }, [])
+    }, [selectedUser])
 
     const getRelativeTime = (epoch: number | null): string => {
         if (!epoch) return "Unknown time";
@@ -398,6 +403,27 @@ export default function Folders() {
         setSelectedFolderIds([]);
     };
 
+     const fetchMemberList = async () => {
+        const currentUserId = await getUserId();
+        try {
+            const response = await MemberList(currentUserId);
+            const data = response?.data?.data;
+
+            if (data) {
+                const allMembers = [...(data.independentMembers || []), ...(data.dependentMembers || [])];
+                setMemberList(allMembers);
+            } else {
+                setMemberList([]);
+            }
+        } catch (error) {
+            console.error("Error fetching members:", error);
+        }
+    };
+
+    useEffect(() => {
+        fetchMemberList();
+    }, []);
+
     return (
         <MasterHome>
             <div className='Main w-[95%] mx-auto sm:w-[90%]'>
@@ -436,8 +462,8 @@ export default function Folders() {
                         <button
                             onClick={handleShareClick}
                             className={`flex items-center gap-3 border px-3 py-1.5 rounded-md text-sm transition-all ${shareMode
-                                    ? 'border-green-500 bg-green-50 text-green-700'
-                                    : 'border-gray-400 text-gray-700 hover:bg-gray-100'
+                                ? 'border-green-500 bg-green-50 text-green-700'
+                                : 'border-gray-400 text-gray-700 hover:bg-gray-100'
                                 }`}
                         >
                             <FaShareAlt className="text-xs sm:text-[16px]" />
@@ -452,8 +478,8 @@ export default function Folders() {
                                 onClick={handleSendReports}
                                 disabled={selectedReports.size === 0 || isSharing}
                                 className={`flex items-center gap-3 border px-3 py-1.5 rounded-md text-sm transition-all ${selectedReports.size > 0 && !isSharing
-                                        ? 'border-blue-500 bg-blue-500 text-white hover:bg-blue-600'
-                                        : 'border-gray-300 bg-gray-100 text-gray-400 cursor-not-allowed'
+                                    ? 'border-blue-500 bg-blue-500 text-white hover:bg-blue-600'
+                                    : 'border-gray-300 bg-gray-100 text-gray-400 cursor-not-allowed'
                                     }`}
                             >
                                 {isSharing ? (
@@ -471,8 +497,8 @@ export default function Folders() {
                         <button
                             onClick={handleAccessClick}
                             className={`flex items-center gap-3 border px-3 py-1.5 rounded-md text-sm transition-all ${selectionMode
-                                    ? 'border-blue-500 bg-blue-50 text-blue-700'
-                                    : 'border-gray-400 text-gray-700 hover:bg-gray-100'
+                                ? 'border-blue-500 bg-blue-50 text-blue-700'
+                                : 'border-gray-400 text-gray-700 hover:bg-gray-100'
                                 }`}
                         >
                             <FaCheck className="text-xs sm:text-[16px]" />
@@ -516,10 +542,23 @@ export default function Folders() {
                     )}
 
                     {/* User Dropdown */}
-                    <button className="flex items-center gap-3 h-[40px] border border-gray-400 text-gray-700 px-3 py-1.5 rounded-md text-sm hover:bg-gray-100">
-                        <span className='sm:text-[16px]'>Ankit</span>
-                        <FaChevronDown className="text-xs sm:text-[16px]" />
-                    </button>
+                    {/* <button className="flex items-center gap-3 h-[40px] border border-gray-400 text-gray-700 px-3 py-1.5 rounded-md text-sm hover:bg-gray-100"> */}
+                    <div className="relative">
+                          <select
+                                        value={selectedUser}
+                                        onChange={(e) => setSelectedUser(e.target.value)}
+                                        className="appearance-none text-black border border-gray-400 px-3 md:px-4 py-2 pr-8 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm md:text-base"
+                                    >
+                                        <option value="all">Users</option>
+                                        {memberList.map((member) => (
+                                            <option key={member.id} value={member.id.toString()}>
+                                                {member.firstName}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 text-black" size={16} />
+                                    </div>
+                    {/* </button> */}
                 </div>
 
                 <div className="flex flex-row flex-wrap justify-center sm:justify-start mt-[3rem] gap-4 md:gap-6 lg:gap-8">
@@ -754,12 +793,12 @@ const FolderCard: React.FC<FolderCardProps> = ({
 
     return (
         <div className={`relative flex flex-col items-center w-[140px] md:w-[180px] gap-2 p-3 rounded-md transition-all ${isInSelectionMode
-                ? isCurrentlySelected
-                    ? shareMode
-                        ? 'bg-green-100 border-2 border-green-500'
-                        : 'bg-blue-100 border-2 border-blue-500'
-                    : 'hover:bg-gray-100 border-2 border-transparent'
-                : 'hover:bg-gray-200'
+            ? isCurrentlySelected
+                ? shareMode
+                    ? 'bg-green-100 border-2 border-green-500'
+                    : 'bg-blue-100 border-2 border-blue-500'
+                : 'hover:bg-gray-100 border-2 border-transparent'
+            : 'hover:bg-gray-200'
             }`}>
             {/* Checkbox for selection/share mode */}
             {isInSelectionMode && (
@@ -769,8 +808,8 @@ const FolderCard: React.FC<FolderCardProps> = ({
                         checked={isCurrentlySelected}
                         onChange={handleCheckboxChange}
                         className={`w-4 h-4 bg-gray-100 border-gray-300 rounded focus:ring-2 ${shareMode
-                                ? 'text-green-600 focus:ring-green-500'
-                                : 'text-blue-600 focus:ring-blue-500'
+                            ? 'text-green-600 focus:ring-green-500'
+                            : 'text-blue-600 focus:ring-blue-500'
                             }`}
                     />
                 </div>

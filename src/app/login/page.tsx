@@ -94,12 +94,14 @@ export default function LoginPage() {
       : Yup.string().notRequired(),
   });
 
+  
+
   const formik = useFormik({
     initialValues: {
       emailOrPhone: '',
       password: '',
       otp: '',
-      countryCode: ''
+      countryCode: '+91'
     },
     validationSchema,
     onSubmit: async (values) => {
@@ -276,7 +278,7 @@ export default function LoginPage() {
                       value={formik.values.countryCode}
                       onChange={formik.handleChange}
                       onBlur={formik.handleBlur}
-                      className="w-16 sm:w-20 truncate border-0 bg-transparent py-[15px] sm:py-3 
+                      className="w-16 sm:w-25 truncate border-0 bg-transparent py-[15px] sm:py-3 
                    pl-1.5 sm:pl-2 pr-0.5 sm:pr-1 text-xs sm:text-sm text-gray-700 
                    font-medium focus:outline-none focus:ring-0"
                     >

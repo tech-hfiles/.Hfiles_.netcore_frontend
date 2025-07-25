@@ -143,7 +143,7 @@ const SignUp = () => {
       firstName: '',
       lastName: '',
       dob: '',
-      countryCode: JSON.stringify({ country: 'Ind', dialingCode: '+91' }),
+      countryCode: JSON.stringify({ country: 'IND', dialingCode: '+91' }),
       phone: '',
       email: '',
       password: '',
@@ -375,8 +375,8 @@ const SignUp = () => {
                       value={convertToDateInputFormat(formik.values.dob)}
                       onChange={(e) => handleDateChange(e.target.value)}
                       onBlur={formik.handleBlur}
-                       placeholder="DOB"
-                      className="w-full px-4   py-3 rounded-lg bg-black text-gray-500   font-montserrat-300 border border-black focus:outline-none focus:ring-0 "
+                      placeholder="DOB"
+                      className="w-full px-4   py-3 rounded-lg bg-white text-gray-500   font-montserrat-300 border border-black focus:outline-none focus:ring-0 "
                       max={new Date().toISOString().split("T")[0]}
                     />
 

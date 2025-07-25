@@ -21,6 +21,8 @@ interface AddSurgeryDetailsProps {
 
 const AddSurgeryDetails: React.FC<AddSurgeryDetailsProps> = ({
     historyList, handleEdit, setShowForm }) => {
+
+        console.log(historyList,"historyList")
     return (
         <div>
             {/* Table with responsive design */}
@@ -40,16 +42,21 @@ const AddSurgeryDetails: React.FC<AddSurgeryDetailsProps> = ({
                         <tbody>
                             {historyList.map((item: HistoryItem, index: number) => (
                                 <tr key={index} className="border-t">
-                                    <td className="p-2 sm:p-3 border-r text-xs sm:text-sm">{item.user_surgery_details || "—"}</td>
+                                    <td className="p-2 sm:p-3 border-r text-xs sm:text-sm">{item.surgeryName}</td>
                                     <td className="p-2 sm:p-3 border-r text-xs sm:text-sm hidden sm:table-cell">
-                                        {item.user_surgery_year
-                                            ? new Date(item.user_surgery_year).toLocaleDateString("en-US", {
-                                                year: "numeric",month:"numeric",day:"numeric"
-                                            })
-                                            : "—"}
-                                    </td>
-                                    <td className="p-2 sm:p-3 border-r text-xs sm:text-sm hidden sm:table-cell">{item.hostname || "—"}</td>
-                                    <td className="p-2 sm:p-3 border-r text-xs sm:text-sm hidden sm:table-cell">{item.drname || "—"}</td>
+  {item.surgeryDate
+    ? new Date(
+        item.surgeryDate.split("-").reverse().join("-") // Convert to YYYY-MM-DD
+      ).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "numeric",
+        day: "numeric"
+      })
+    : "—"}
+</td>
+
+                                    <td className="p-2 sm:p-3 border-r text-xs sm:text-sm hidden sm:table-cell">{item.hospitalName || "—"}</td>
+                                    <td className="p-2 sm:p-3 border-r text-xs sm:text-sm hidden sm:table-cell">{item.doctorName || "—"}</td>
                                     <td className="p-2 sm:p-3">
                                         <button
                                             className="text-red-500 hover:text-red-700 mr-4"

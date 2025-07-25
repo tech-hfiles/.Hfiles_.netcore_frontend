@@ -137,6 +137,10 @@ export const endpoints = {
    IMMUNIZATION : {
       AddImmunization : API_NEW_Data + "users/immunizations",
 
+   },
+
+   FEEDBACk : {
+      AddFeedBack : (userId:number) => `${API_NEW_Data}user/${userId}/feedback`
    }
 
 }

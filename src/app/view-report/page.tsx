@@ -2,7 +2,6 @@
 export const runtime = 'edge'
 import { useSearchParams, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-import Image from "next/image"; // Add Next.js Image import
 import MasterHome from "../components/MasterHome";
 import { Reportedit } from "@/app/services/HfilesServiceApi"; // Import the edit API
 import { decryptData } from "@/app/utils/webCrypto";
@@ -58,12 +57,12 @@ const ViewReportPage = () => {
   // Format date for API (based on the API spec showing "34-92-9983" format)
   const formatDateForAPI = (dateString: string): string => {
     if (!dateString) return "";
-    
+
     const date = new Date(dateString);
     const day = date.getDate().toString().padStart(2, '0');
     const month = (date.getMonth() + 1).toString().padStart(2, '0');
     const year = date.getFullYear().toString();
-    
+
     return `${day}-${month}-${year}`;
   };
 
@@ -93,7 +92,7 @@ const ViewReportPage = () => {
         editDate: formatDateForAPI(reportDate)
       };
       // Call the edit API
-      const response = await Reportedit(currentUserId, parseInt(reportId),payload);
+      const response = await Reportedit(currentUserId, parseInt(reportId), payload);
       toast.success(`${response.data.message}`);
       setIsSaved(true);
       setTimeout(() => {
@@ -103,7 +102,7 @@ const ViewReportPage = () => {
     } catch (error: unknown) { // Fix: Replace 'any' with 'unknown'
       console.error('Error updating report:', error);
       const apiError = error as ApiError; // Type assertion for better type safety
-      
+
       if (apiError.response) {
         // API returned an error response
         const message = apiError.response.data?.message || 'An error occurred';
@@ -144,30 +143,31 @@ const ViewReportPage = () => {
             {/* Image Section */}
             <div className="relative p-4">
               <div className="bg-white rounded-xl p-4 shadow-lg">
-                {/* Fix: Replace img with Next.js Image component */}
-                <div className="relative w-full h-64">
-                  <Image
+                {/* Image Preview */}
+                <div className="relative w-full h-50"> {/* Smaller height */}
+                  <img
                     src={reportUrl}
                     alt={reportName || "Report"}
-                    fill
-                    className="object-contain rounded-lg"
+                    className="object-cover rounded-lg w-full h-full"
                     onError={(e) => {
-                      // Handle image load error
+                      // Hide image on error and show fallback
                       e.currentTarget.style.display = 'none';
                       e.currentTarget.nextElementSibling?.classList.remove('hidden');
                     }}
                   />
+                  {/* Fallback if image fails */}
                   <div className="hidden absolute inset-0 bg-gray-100 rounded-lg flex items-center justify-center">
                     <div className="text-center text-gray-500">
-                      <svg className="w-16 h-16 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-10 h-10 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                       </svg>
-                      <p>No image available</p>
+                      <p className="text-xs">No image available</p>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
+
 
             {/* Form Section */}
             <div className="p-4">
@@ -229,28 +229,20 @@ const ViewReportPage = () => {
                   </div>
                 </div>
 
-                {/* Debug Info (remove in production) */}
-                {reportId && (
-                  <div className="text-xs text-gray-500 bg-gray-50 p-2 rounded">
-                    Report ID: {reportId}
-                  </div>
-                )}
-
                 {/* Action Buttons */}
                 <div className="pt-4 space-y-3">
                   {/* Save Button */}
                   <button
                     onClick={handleSave}
                     disabled={isLoading || !reportName.trim() || !reportId}
-                    className={`w-full py-4 px-6 rounded-xl font-semibold text-white transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] ${
-                      isSaved
+                    className={`w-full py-4 px-6 rounded-xl font-semibold text-white transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] ${isSaved
                         ? 'bg-green-500 hover:bg-green-600'
                         : isLoading
                           ? 'bg-gray-400 cursor-not-allowed'
                           : !reportName.trim() || !reportId
                             ? 'bg-gray-300 cursor-not-allowed'
-                            : 'bg-blue-600 hover:bg-blue-700 shadow-lg hover:shadow-xl'
-                    }`}
+                            : 'primary shadow-lg hover:shadow-xl'
+                      }`}
                   >
                     {isLoading ? (
                       <div className="flex items-center justify-center">

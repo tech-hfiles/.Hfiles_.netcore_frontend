@@ -151,14 +151,14 @@ export default function Footer() {
                   <h1>Ahmedabad branch</h1>
                   <p>
                     5-A, Ravi Pushp Apartment,
-                    <br /> Ahmedabad - 380052, Gujarat
+                    <br /> Ahmedabad - 380052
                   </p>
                 </div>
                 <div className="sec_address">
                   <h1>Mumbai branch</h1>
                   <p>
-                    13/4, Marine Lines, Mumbai -
-                    <br /> 400020, Maharashtra
+                    13/4, Chemox house , Marine Lines , Mumbai -
+                    <br /> 400020
                   </p>
                 </div>
               </div>

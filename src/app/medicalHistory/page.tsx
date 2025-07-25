@@ -629,7 +629,8 @@ const MedicalPage = () => {
                 return;
             }
             if (editingIndex !== null) {
-                const surgeryId = historyList[editingIndex].user_surgery_id;
+                const surgeryId = historyList[editingIndex].surgeryId;
+                console.log(historyList,"historyList")
                 const formattedPayload = {
                     ...values,
                     surgeryDate: formatDateToDDMMYYYY(values.surgeryDate),
@@ -648,24 +649,24 @@ const MedicalPage = () => {
         },
     });
 
-    const handleEdit = (index: number) => {
-        const itemToEdit = historyList[index];
-        setEditingIndex(index);
-        const surgeryDate = itemToEdit.user_surgery_year;
-        let formattedDate = "";
-        if (surgeryDate && surgeryDate.includes("-")) {
-            const [day, month, year] = surgeryDate.split("-");
-            formattedDate = `${year}-${month}-${day}`;
-        }
-        editFormik.setValues({
-            surgeryName: itemToEdit.user_surgery_details || "",
-            drName: itemToEdit.drname || "",
-            hospitalName: itemToEdit.hostname || "",
-            surgeryDate: formattedDate,
-        });
+   const handleEdit = (index: number) => {
+    const itemToEdit = historyList[index];
+    setEditingIndex(index);
+    const surgeryDate = itemToEdit.surgeryDate; // Changed from user_surgery_year
+    let formattedDate = "";
+    if (surgeryDate && surgeryDate.includes("-")) {
+        const [day, month, year] = surgeryDate.split("-");
+        formattedDate = `${year}-${month}-${day}`;
+    }
+    editFormik.setValues({
+        surgeryName: itemToEdit.surgeryName || "", // Changed from user_surgery_details
+        drName: itemToEdit.doctorName || "",        // Changed from drname
+        hospitalName: itemToEdit.hospitalName || "", // Changed from hostname
+        surgeryDate: formattedDate,
+    });
 
-        setIsEditModalOpen(true);
-    };
+    setIsEditModalOpen(true);
+};
 
     const handleCloseEditModal = () => {
         setIsEditModalOpen(false);
@@ -676,7 +677,7 @@ const MedicalPage = () => {
     const handleDeleteSurgery = async () => {
         if (editingIndex !== null) {
             const item = historyList[editingIndex];
-            const surgeryId = item.user_surgery_id;
+            const surgeryId = item.surgeryId;
             try {
                 const response = await DeleteData(surgeryId);
                 toast.success(`${response.data.message}`);
@@ -1253,13 +1254,13 @@ const MedicalPage = () => {
                     <p className="text-gray-800 text-xs sm:text-sm lg:text-base font-montserrat-600">
                         Easily access your family's prescriptions whenever you need.
                     </p>
-                     <button 
-        onClick={handleNavigation}
-        style={{ background: 'rgba(249, 227, 128, 1)' }}
-        className="text-gray-900 font-poppins text-xs sm:text-sm px-3 sm:px-4 py-2 rounded-md shadow-sm transition cursor-pointer w-full sm:w-auto"
-    >
-        Family prescription
-    </button>
+                    <button
+                        onClick={handleNavigation}
+                        style={{ background: 'rgba(249, 227, 128, 1)' }}
+                        className="text-gray-900 font-poppins text-xs sm:text-sm px-3 sm:px-4 py-2 rounded-md shadow-sm transition cursor-pointer w-full sm:w-auto"
+                    >
+                        Family prescription
+                    </button>
                 </div>
 
                 {/* Allergies Section */}

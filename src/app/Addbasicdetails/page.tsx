@@ -327,9 +327,9 @@ const AddBasicDetails: React.FC = () => {
   const handleOTPChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/[^0-9]/g, '').slice(0, 6);
     const cursorPosition = e.target.selectionStart;
-    
+
     otpFormik.setFieldValue('otp', value);
-    
+
     // Restore focus and cursor position
     setTimeout(() => {
       if (otpInputRef.current) {
@@ -343,9 +343,9 @@ const AddBasicDetails: React.FC = () => {
   const handlePhoneOTPChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/[^0-9]/g, '').slice(0, 6);
     const cursorPosition = e.target.selectionStart;
-    
+
     phoneOtpFormik.setFieldValue('otp', value);
-    
+
     // Restore focus and cursor position
     setTimeout(() => {
       if (phoneOtpInputRef.current) {
@@ -734,8 +734,8 @@ const AddBasicDetails: React.FC = () => {
       <div className="relative mb-4">
         <div className="relative">
           <i className="fa-solid fa-phone absolute left-3 top-1/2 transform -translate-y-1/2 text-yellow-500 z-10 text-base sm:text-lg"></i>
-          <div className={`bg-white rounded-full border ${formik.touched.contactNumber && formik.errors.contactNumber ? 'border-red-500' :
-            formik.touched.countryCode && formik.errors.countryCode ? 'border-red-500' : 'border-gray-300'
+          <div className={`bg-white rounded-[7px] border ${formik.touched.contactNumber && formik.errors.contactNumber ? 'border-red-500' :
+            formik.touched.countryCode && formik.errors.countryCode ? 'border-red-500' : 'border-[#333]'
             } overflow-hidden focus-within:ring-2 focus-within:ring-blue-400 focus-within:border-transparent transition-all duration-200`}>
 
             <div className="flex items-center">
@@ -745,7 +745,7 @@ const AddBasicDetails: React.FC = () => {
                 value={formik.values.countryCode}
                 onChange={handleRegularChange}
                 onBlur={formik.handleBlur}
-                className="border-0 bg-transparent py-2 sm:py-3 pl-6 sm:pl-7 pr-1 sm:pr-2 text-xs sm:text-sm focus:ring-0 focus:outline-none text-gray-700 font-medium"
+                className="border-0 bg-transparent py-2 sm:py-3 pl-6 sm:pl-7 font-montserrat-500 text-[#0331b5] placeholder-[#0331b5] pr-1 sm:pr-2 text-xs sm:text-sm focus:ring-0 focus:outline-none  font-medium"
                 style={{ minWidth: '90px', maxWidth: '120px' }}
               >
                 <option value="">Country</option>
@@ -771,7 +771,7 @@ const AddBasicDetails: React.FC = () => {
                 value={formik.values.contactNumber}
                 onChange={handleCustomChange}
                 onBlur={formik.handleBlur}
-                className="flex-1 border-0 py-2 sm:py-3 px-2 bg-transparent focus:ring-0 focus:outline-none text-gray-700 placeholder-gray-400 text-xs sm:text-sm"
+                className="flex-1 border-0 py-2 sm:py-3 pl-6 sm:pl-3 sm:pr-0 bg-transparent font-montserrat-400 focus:ring-0 focus:outline-none text-gray-700 placeholder-gray-400 text-xs sm:text-sm"
                 maxLength={10}
               />
 
@@ -802,7 +802,7 @@ const AddBasicDetails: React.FC = () => {
       <div className="relative mb-4">
         <div className="relative">
           <i className="fa-solid fa-phone absolute left-3 top-1/2 transform -translate-y-1/2 text-yellow-500 z-10 text-base sm:text-lg"></i>
-          <div className={`bg-white rounded-full border overflow-hidden
+          <div className={`bg-white rounded-[7px] border overflow-hidden
             focus-within:ring-2 focus-within:ring-blue-400 focus-within:border-transparent transition-all duration-200`}>
 
             <div className="flex items-center">
@@ -812,7 +812,7 @@ const AddBasicDetails: React.FC = () => {
                 value={formik.values.emergencyCountryCode}
                 onChange={handleRegularChange}
                 onBlur={formik.handleBlur}
-                className="border-0 bg-transparent py-2 sm:py-3 pl-6 sm:pl-7 pr-1 sm:pr-2 text-xs sm:text-sm focus:ring-0 focus:outline-none text-gray-700 font-medium"
+                className="border-0 bg-transparent py-2 sm:py-3 pl-6 sm:pl-3 pr-1 sm:pr-0 font-montserrat-500  text-[#0331b5] placeholder-[#0331b5]  text-[12px]  focus:ring-0 focus:outline-none "
                 style={{ minWidth: '90px', maxWidth: '120px' }}
               >
                 <option value="">Country</option>
@@ -839,7 +839,7 @@ const AddBasicDetails: React.FC = () => {
                 value={formik.values.emergencyContact}
                 onChange={handleCustomChange}
                 onBlur={formik.handleBlur}
-                className="flex-1 border-0 py-2 sm:py-3 px-2 bg-transparent focus:ring-0 focus:outline-none text-gray-700 placeholder-gray-400 text-xs sm:text-sm"
+                className="flex-1 border-0 py-2 sm:py-3 px-2 bg-transparent focus:ring-0 focus:outline-none rounded-[7px] font-montserrat-400  text-[#0331b5]  placeholder-gray-500 text-[13px] sm:text-sm"
               />
 
               {emergencyContactFlagUrl && (
@@ -903,7 +903,7 @@ const AddBasicDetails: React.FC = () => {
                     onChange={handleOTPChange}
                     onBlur={otpFormik.handleBlur}
                     maxLength={6}
-                    className={`w-full pl-10 sm:pl-12 pr-4 py-2 sm:py-3 border ${otpFormik.touched.otp && otpFormik.errors.otp ? 'border-red-500' : 'border-gray-300'} rounded-full bg-white text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 text-center text-sm sm:text-lg tracking-wider sm:tracking-widest`}
+                    className={`w-full pl-10 sm:pl-12 pr-4 py-2 sm:py-3 border ${otpFormik.touched.otp && otpFormik.errors.otp ? 'border-red-500' : 'border-black'}  rounded-[7px] font-montserrat-400 bg-white text-[#333333] placeholder-[#333333] focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 text-center text-sm sm:text-lg tracking-wider sm:tracking-widest`}
                     placeholder="000000"
                   />
                 </div>
@@ -1084,7 +1084,8 @@ const AddBasicDetails: React.FC = () => {
                       onBlur={phoneOtpFormik.handleBlur}
                       maxLength={6}
                       className={`w-full pl-10 sm:pl-12 pr-4 py-2 sm:py-3 border ${phoneOtpFormik.touched.otp && phoneOtpFormik.errors.otp ? 'border-red-500' : 'border-gray-300'
-                        } rounded-full bg-white text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 text-center text-sm sm:text-lg tracking-wider sm:tracking-widest`}
+
+                        } rounded-[7px] font-montserrat-400 bg-white text-[#333333] placeholder-[#333333] focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 text-center text-sm sm:text-lg tracking-wider sm:tracking-widest`}
                       placeholder="000000"
                     />
                   </div>
@@ -1144,7 +1145,7 @@ const AddBasicDetails: React.FC = () => {
 
   return (
     <MasterHome>
-      <div className="h-[calc(100vh-80px)] sm:h-[calc(100vh-90px)] md:h-[calc(100vh-100px)] lg:h-[calc(100vh-134px)] 2xl:h-[calc(100vh-120x)] bg-gradient-to-br from-blue-50 via-blue-100 to-blue-200">
+      <div className="h-[calc(100vh-80px)] sm:h-[calc(100vh-90px)] md:h-[calc(100vh-100px)] lg:h-[calc(100vh-134px)] 2xl:h-[calc(100vh-120x)] ">
         <div className="flex justify-between items-center mx-3 p-3">
           <button
             onClick={() => router.push('/dashboard')}
@@ -1189,18 +1190,18 @@ const AddBasicDetails: React.FC = () => {
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row gap-6 md:gap-8 lg:gap-12 xl:gap-16 items-start">
-            <div className="w-full md:w-64 lg:w-80 xl:w-96 flex flex-col items-center">
+            <div className="ww-full md:w-64 lg:w-80 xl:w-96 flex flex-col items-center md:mt-[7rem] mx-auto">
               <div className="mb-4 sm:mb-6 relative">
-                <div className="w-34 h-34 sm:w-32 sm:h-32 md:w-40 md:h-40 rounded-full border-4 border-yellow-400 p-1 bg-white shadow-lg">
+                <div className="w-36 h-36 sm:w-[18rem] sm:h-[18rem] md:w-40 md:h-40 lg:w-[20rem] lg:h-[20rem] rounded-full border-2 border-yellow-400 p-1 bg-white shadow-lg">
                   {imageLoading ? (
                     <div className="w-full h-full rounded-full bg-gray-200 flex items-center justify-center">
-                      <div className="animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 border-b-2 border-blue-600"></div>
+                      <div className="animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 border-b-2 border-[#0331b5]"></div>
                     </div>
                   ) : (
                     <img
                       id="imagePreview"
                       src={profileImage}
-                      alt="Profile"
+                      alt="Profile image"
                       className="w-full h-full rounded-full object-cover"
                       onError={(e) => {
                         e.currentTarget.src = '/assets/default-user-profile.png';
@@ -1218,7 +1219,7 @@ const AddBasicDetails: React.FC = () => {
               <button
                 onClick={showFileUpload}
                 disabled={imageLoading}
-                className={`bg-yellow-400 hover:bg-yellow-500 text-gray-800 font-medium py-2 sm:py-3 px-6 sm:px-8 rounded-full transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-105 text-xs sm:text-sm ${imageLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                className={`bg-[#F9E380] hover:bg-[#ffd100] font-montserrat-500 text-black  py-3 sm:py-3 px-7 sm:px-8 rounded-full transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-105 text-sm sm:text-sm ${imageLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
                 {imageLoading ? 'Processing...' : 'Change Profile Image'}
               </button>
@@ -1232,19 +1233,20 @@ const AddBasicDetails: React.FC = () => {
             </div>
 
             <div className="flex-1 w-full max-w-full sm:max-w-2xl md:max-w-3xl lg:max-w-4xl xl:max-w-5xl">
-              <div className="text-center mb-6 sm:mb-8">
-                <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-blue-700 mb-2 sm:mb-3">
+              <div className="hidden sm:block text-center mb-6 sm:mb-8">
+                <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#0331b5] mb-2 sm:mb-3">
                   Ready to manage your health? Let's get you set up!
                 </h1>
                 <p className="text-gray-600 text-sm sm:text-base">
                   Fill in your details to kickstart your health journey
                 </p>
-                <div className="w-16 sm:w-20 h-1 bg-blue-400 mx-auto mt-3 sm:mt-4 rounded-full"></div>
+                <div className="w-16 sm:w-36 h-[2px] bg-black mx-auto mt-3 sm:mt-4 rounded-full"></div>
               </div>
 
               <form onSubmit={formik.handleSubmit}>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
                   <div className="space-y-4">
+
                     <div className="relative mb-4">
                       <div className="relative">
                         <i className="fa-solid fa-user absolute left-3 top-1/2 transform -translate-y-1/2 text-yellow-500 z-10 text-base sm:text-lg"></i>
@@ -1254,8 +1256,10 @@ const AddBasicDetails: React.FC = () => {
                           value={formik.values.firstName}
                           onChange={handleCustomChange}
                           onBlur={formik.handleBlur}
-                          className={`w-full pl-10 sm:pl-12 pr-4 py-2 sm:py-3 border ${formik.touched.firstName && formik.errors.firstName ? 'border-red-500' : 'border-gray-300'} rounded-full bg-white text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 text-xs sm:text-sm`}
-                          placeholder="rahul"
+                          className={`w-full pl-10 sm:pl-12 pr-4 py-2 sm:py-3 border ${formik.touched.firstName && formik.errors.firstName ? 'border-red-500' : 'border-black'} 
+                                      rounded-[7px] font-montserrat-400 bg-white text-[#333333] placeholder-[#333333] focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent 
+                                      transition-all duration-200 text-[16px] sm:text-lg`}
+                          placeholder="Rahul"
                           required
                         />
                       </div>
@@ -1273,7 +1277,7 @@ const AddBasicDetails: React.FC = () => {
                           value={formik.values.lastName}
                           onChange={handleCustomChange}
                           onBlur={formik.handleBlur}
-                          className={`w-full pl-10 sm:pl-12 pr-4 py-2 sm:py-3 border ${formik.touched.lastName && formik.errors.lastName ? 'border-red-500' : 'border-gray-300'} rounded-full bg-white text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 text-xs sm:text-sm`}
+                          className={`w-full pl-10 sm:pl-12 pr-4 py-2 sm:py-3 border ${formik.touched.lastName && formik.errors.lastName ? 'border-red-500' : 'border-black'}  rounded-[7px] font-montserrat-400 bg-white text-[#333333] placeholder-[#333333] focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 text-[16px] sm:text-lg`}
                           placeholder="sinha"
                           required
                         />
@@ -1292,7 +1296,7 @@ const AddBasicDetails: React.FC = () => {
                           value={formik.values.dateOfBirth}
                           onChange={handleRegularChange}
                           onBlur={formik.handleBlur}
-                          className={`w-full pl-10 sm:pl-12 pr-4 py-2 sm:py-3 border ${formik.touched.dateOfBirth && formik.errors.dateOfBirth ? 'border-red-500' : 'border-gray-300'} rounded-full bg-white text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 text-xs sm:text-sm`}
+                          className={`w-full pl-10 sm:pl-12 pr-4 py-2 sm:py-3 border ${formik.touched.dateOfBirth && formik.errors.dateOfBirth ? 'border-red-500' : 'border-black'}  rounded-[7px] font-montserrat-400 bg-white text-[#333333] placeholder-[#333333] focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 text-[16px] sm:text-lg`}
                           placeholder="15-12-1997"
                           required
                           max={new Date().toISOString().split('T')[0]}
@@ -1314,10 +1318,14 @@ const AddBasicDetails: React.FC = () => {
                           value={formik.values.email}
                           onChange={handleRegularChange}
                           onBlur={formik.handleBlur}
-                          className={`w-full pl-10 sm:pl-12 pr-4 py-2 sm:py-3 border ${formik.touched.email && formik.errors.email ? 'border-red-500' : 'border-gray-300'} rounded-full bg-white text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 text-xs sm:text-sm`}
-                          placeholder="kamleshfiles2024@gmail.com"
+                          disabled={!userEmail?.isEmailVerified === true}
+                          className={`w-full pl-10 sm:pl-12 pr-4 py-2 sm:py-3 border ${formik.touched.email && formik.errors.email ? 'border-red-500' : 'border-black'
+                            } rounded-[7px] font-montserrat-400 ${userEmail?.isEmailVerified === true ? 'bg-gray-200 cursor-not-allowed' : 'bg-white'
+                            } text-[#333333] placeholder-[#333333] focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 text-[16px] sm:text-lg`}
+                          placeholder="Enter Your Email.."
                           required
                         />
+
                       </div>
                       {formik.touched.email && formik.errors.email && (
                         <span className="block text-red-500 text-xs mt-1 ml-4">{formik.errors.email}</span>
@@ -1334,7 +1342,7 @@ const AddBasicDetails: React.FC = () => {
                           value={formik.values.gender}
                           onChange={handleRegularChange}
                           onBlur={formik.handleBlur}
-                          className={`w-full pl-10 sm:pl-12 pr-4 py-2 sm:py-3 border ${formik.touched.gender && formik.errors.gender ? 'border-red-500' : 'border-gray-300'} rounded-full bg-white focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 text-xs sm:text-sm ${formik.values.gender ? 'text-gray-700' : 'text-gray-400'}`}
+                          className={`w-full pl-10 sm:pl-12 pr-4 py-2 sm:py-3 border ${formik.touched.gender && formik.errors.gender ? 'border-red-500' : 'border-black'}  rounded-[7px] font-montserrat-400 bg-white text-[#0331b5] placeholder-[#333333] focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 text-[16px] sm:text-lg ${formik.values.gender ? 'text-[#0331b5]' : 'text-gray-500'}`}
                           required
                         >
                           <option value="" disabled>Select Gender</option>
@@ -1356,7 +1364,7 @@ const AddBasicDetails: React.FC = () => {
                           value={formik.values.bloodGroup}
                           onChange={handleRegularChange}
                           onBlur={formik.handleBlur}
-                          className={`w-full pl-10 sm:pl-12 pr-4 py-2 sm:py-3 border ${formik.touched.bloodGroup && formik.errors.bloodGroup ? 'border-red-500' : 'border-gray-300'} rounded-full bg-white focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 text-xs sm:text-sm ${formik.values.bloodGroup && formik.values.bloodGroup !== '0' ? 'text-gray-700' : 'text-gray-400'}`}
+                          className={`w-full pl-10 sm:pl-12 pr-4 py-2 sm:py-3 border ${formik.touched.bloodGroup && formik.errors.bloodGroup ? 'border-red-500' : 'border-black'}  rounded-[7px] font-montserrat-400 bg-white text-[#0331b5] placeholder-[#333333] focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 text-[16px] sm:text-lg ${formik.values.bloodGroup && formik.values.bloodGroup !== '0' ? 'text-[#0331b5]' : 'text-gray-500'}`}
                         >
                           <option value="">Select BloodGroup</option>
                           <option value="A+">A+</option>
@@ -1383,8 +1391,8 @@ const AddBasicDetails: React.FC = () => {
                           value={formik.values.pincode}
                           onChange={handleCustomChange}
                           onBlur={formik.handleBlur}
-                          className={`w-full pl-10 sm:pl-12 pr-4 py-2 sm:py-3 border ${formik.touched.pincode && formik.errors.pincode ? 'border-red-500' : 'border-gray-300'} rounded-full bg-white text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 text-xs sm:text-sm ${pincodeLoading ? 'opacity-50' : ''}`}
-                          placeholder="400020"
+                          className={`w-full pl-10 sm:pl-12 pr-4 py-2 sm:py-3 border ${formik.touched.pincode && formik.errors.pincode ? 'border-red-500' : 'border-black'}  rounded-[7px] font-montserrat-400 bg-white text-[#0331b5] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 text-[16px] sm:text-lg ${pincodeLoading ? 'opacity-50' : ''}`}
+                          placeholder="Ex. 400020"
                           maxLength={6}
                           disabled={pincodeLoading}
                         />
@@ -1408,7 +1416,7 @@ const AddBasicDetails: React.FC = () => {
                           value={formik.values.state}
                           onChange={handleRegularChange}
                           onBlur={formik.handleBlur}
-                          className={`w-full pl-10 sm:pl-12 pr-4 py-2 sm:py-3 border ${formik.touched.state && formik.errors.state ? 'border-red-500' : 'border-gray-300'} rounded-full bg-white text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 text-xs sm:text-sm`}
+                          className={`w-full pl-10 sm:pl-12 pr-4 py-2 sm:py-3 border ${formik.touched.state && formik.errors.state ? 'border-red-500' : 'border-black'}  rounded-[7px] font-montserrat-400 bg-white text-[#0331b5] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 text-[16px] sm:text-lg`}
                           placeholder="State (Auto-filled by pincode)"
                           required
                         />
@@ -1427,7 +1435,7 @@ const AddBasicDetails: React.FC = () => {
                           value={formik.values.city}
                           onChange={handleRegularChange}
                           onBlur={formik.handleBlur}
-                          className={`w-full pl-10 sm:pl-12 pr-4 py-2 sm:py-3 border ${formik.touched.city && formik.errors.city ? 'border-red-500' : 'border-gray-300'} rounded-full bg-white text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 text-xs sm:text-sm`}
+                          className={`w-full pl-10 sm:pl-12 pr-4 py-2 sm:py-3 border ${formik.touched.city && formik.errors.city ? 'border-red-500' : 'border-black'}  rounded-[7px] font-montserrat-400 bg-white text-[#0331b5] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 text-[16px] sm:text-lg`}
                           placeholder="City (Auto-filled by pincode)"
                           required
                         />
@@ -1445,7 +1453,7 @@ const AddBasicDetails: React.FC = () => {
                   <button
                     type="submit"
                     disabled={loading}
-                    className={`bg-yellow-400 hover:bg-yellow-500 text-gray-800 font-semibold py-3 sm:py-4 px-12 sm:px-16 rounded-full transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 min-w-[160px] sm:min-w-[200px] text-sm sm:text-base ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    className={`bg-[#F9E380] hover:bg-[#ffd100] font-montserrat-500 text-black   py-3 sm:py-4 px-12 sm:px-16 rounded-full transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 min-w-[160px] sm:min-w-[200px] text-sm sm:text-base ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
                     {loading ? 'Updating...' : 'Update'}
                   </button>
