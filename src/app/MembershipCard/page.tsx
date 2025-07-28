@@ -4,39 +4,8 @@ import { ChevronDown, ChevronUp, ArrowLeft } from 'lucide-react';
 import MasterHome from '../components/MasterHome';
 import { FaLessThan } from 'react-icons/fa';
 import { useRouter } from 'next/navigation';
-
-// JSON data structure
-const membershipData = {
-  myCard: {
-    user_firstname: 'Harsh',
-    membership_id: 'HF031595HAR8697',
-    blood_group: 'A+',
-    emergency_contact: '8007341148',
-    expiry: '11/25',
-    user_image: '/membershipcard/member.png'
-  },
-  familyMembers: [
-    {
-      user_id: 1,
-      user_firstname: 'Harsh',
-      user_image: '/membershipcard/member.png',
-      blood_group: 'B+',
-      emergency_contact: '8007341148',
-      membership_id: 'HF010725DOG8877',
-      expiry: '11/25',
-    },
-    {
-      user_id: 2,
-      user_firstname: 'Priya',
-      user_image: '/membershipcard/member.png',
-      blood_group: 'O+',
-      emergency_contact: '9876543210',
-      membership_id: 'HF010725PRI9988',
-      expiry: '12/25',
-    }
-  ],
-  customerService: '+91 9978043453'
-};
+import { MemberList } from '../services/HfilesServiceApi';
+import { decryptData } from '../utils/webCrypto';
 
 interface UserData {
   user_id?: number;
@@ -46,6 +15,18 @@ interface UserData {
   emergency_contact: string;
   membership_id: string;
   expiry: string;
+  relation?: string;
+}
+
+interface ApiMemberData {
+  id: number;
+  firstName: string;
+  lastName: string;
+  relation: string;
+  email: string;
+  phoneNumber: string;
+  hfId: string;
+  profileURL: string;
 }
 
 interface MembershipCardDisplayProps {
@@ -65,7 +46,7 @@ const MembershipCardDisplay: React.FC<MembershipCardDisplayProps> = ({
         <div
           className="relative w-full h-40 sm:h-48 md:h-56 lg:h-64 xl:h-72 p-2 sm:p-3 md:p-4 lg:p-5"
           style={{
-            backgroundImage: `url('${user.user_image}')`,
+            backgroundImage: `url('${'/membershipcard/member.png'}')`,
             backgroundSize: '100% 100%',
             backgroundPosition: 'center',
             backgroundRepeat: 'no-repeat',
@@ -78,7 +59,7 @@ const MembershipCardDisplay: React.FC<MembershipCardDisplayProps> = ({
 
             {/* Main Content */}
             <div className="flex-[2.5] p-1 sm:p-2 md:p-3">
-              <div className="h-full flex flex-col justify-start text-left space-y-1 sm:space-y-2">
+              <div className="h-full flex flex-col justify-start text-left space-y-1 sm:space-y-2 mx-5">
 
                 {/* Membership ID */}
                 <div className="mt-6 sm:mt-8 md:mt-10 lg:mt-12 xl:mt-14">
@@ -89,27 +70,34 @@ const MembershipCardDisplay: React.FC<MembershipCardDisplayProps> = ({
 
                 {/* Name */}
                 <div className="text-[10px] sm:text-xs md:text-sm lg:text-base xl:text-lg font-medium text-black">
-                  {isMyCard ? `${user.user_firstname} Mistry` : `${user.user_firstname} kap`}
+                  {user.user_firstname}
                 </div>
+
+                {/* Relation (for family members) */}
+                {!isMyCard && user.relation && (
+                  <div className="text-[8px] sm:text-[10px] md:text-xs lg:text-sm text-gray-600">
+                    Relation: {user.relation}
+                  </div>
+                )}
 
                 {/* Blood Group and Expiry */}
                 <div className="flex flex-col sm:flex-row gap-1 sm:gap-2 mt-1 sm:mt-2">
                   {/* Blood Group */}
                   <div className="flex items-center text-[8px] sm:text-[10px] md:text-xs lg:text-sm">
                     <span className="text-gray-700">Blood Group:</span>
-                    <span className="ml-1 font-semibold text-black">{user.blood_group}</span>
+                    <span className="ml-1 font-semibold text-black">{user.blood_group || NaN}</span>
                   </div>
 
                   {/* Expiry */}
                   <div className="flex items-center text-[8px] sm:text-[10px] md:text-xs lg:text-sm">
                     <span className="text-gray-700">Expiry:</span>
-                    <span className="ml-1 font-semibold text-black">{user.expiry}</span>
+                    <span className="ml-1 font-semibold text-black">{user.expiry || NaN}</span>
                   </div>
                 </div>
 
                 {/* Emergency Contact */}
                 <div className="flex items-center text-[8px] sm:text-[10px] md:text-xs lg:text-sm mt-1">
-                  <span className="text-gray-700">Emergency:</span>
+                  <span className="text-gray-700">Contact:</span>
                   <span className="ml-1 font-bold text-black">{user.emergency_contact}</span>
                 </div>
 
@@ -131,24 +119,128 @@ const MembershipCardDisplay: React.FC<MembershipCardDisplayProps> = ({
 const MembershipCard: React.FC = () => {
   const [expandedCard, setExpandedCard] = useState<number | string | null>(null);
   const [isDesktop, setIsDesktop] = useState<boolean>(false);
-  const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const [myCard, setMyCard] = useState<UserData | null>(null);
+  const [familyMembers, setFamilyMembers] = useState<UserData[]>([]);
+  const [error, setError] = useState<string>('');
   const router = useRouter();
 
-  // Simulate fetching data
+  const customerService = '+91 9978043453'; // You can make this dynamic if needed
+
+  const getUserId = async (): Promise<number> => {
+    try {
+      const encryptedUserId = localStorage.getItem("userId");
+      if (!encryptedUserId) return 0;
+
+      const userIdStr = await decryptData(encryptedUserId); // decrypted string: "123"
+      return parseInt(userIdStr, 10); // converts to number 123
+    } catch (error) {
+      console.error("Error getting userId:", error);
+      return 0;
+    }
+  };
+  // Function to get data from localStorage
+  const getLocalStorageData = () => {
+    try {
+      // Get data directly from localStorage
+      const userName = localStorage.getItem("userName");
+      const phone = localStorage.getItem("phone");
+      const hfid = localStorage.getItem("hfid");
+
+      // If any required data is missing, return null
+      if (!userName || !phone || !hfid) {
+        console.log("Missing localStorage data");
+        return null;
+      }
+
+      return {
+        userName,
+        phone,
+        hfid
+      };
+    } catch (error) {
+      console.error("Error getting localStorage data:", error);
+      return null;
+    }
+  };
+
+  // Function to map localStorage data to UserData structure
+  const mapLocalStorageToUserData = (localData: { userName: string; phone: string; hfid: string }, userId: number): UserData => {
+    return {
+      user_id: userId,
+      user_firstname: localData.userName,
+      user_image: '/membershipcard/member.png', // Default image
+      blood_group: '', // Can be added to localStorage if needed
+      emergency_contact: localData.phone,
+      membership_id: localData.hfid,
+      expiry: '', // Can be added to localStorage if needed
+      relation: undefined // Not applicable for my card
+    };
+  };
+
+  // Function to map API data to component data structure
+  const mapApiDataToUserData = (apiMember: ApiMemberData): UserData => {
+    return {
+      user_id: apiMember.id,
+      user_firstname: `${apiMember.firstName} ${apiMember.lastName}`,
+      user_image: apiMember.profileURL === "Profile Photo Not Available"
+        ? '/membershipcard/member.png' // Default image
+        : apiMember.profileURL,
+      blood_group: '', // Not available in API, you might want to add this field
+      emergency_contact: apiMember.phoneNumber,
+      membership_id: apiMember.hfId,
+      expiry: '', // Not available in API, you might want to add this field
+      relation: apiMember.relation
+    };
+  };
+
   const fetchMembershipData = async () => {
     try {
       setLoading(true);
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      setError('');
 
-      // In real implementation, this would be:
-      // const response = await fetch('/api/membership-data');
-      // const data = await response.json();
+      const currentUserId = await getUserId();
+      if (!currentUserId) {
+        setError('User ID not found');
+        return;
+      }
 
-      setData(membershipData);
+      // Get my card data from localStorage
+      const localData = getLocalStorageData();
+      if (localData) {
+        const myCardData = mapLocalStorageToUserData(localData, currentUserId);
+        setMyCard(myCardData);
+      } else {
+        setError('User data not found in localStorage');
+        return;
+      }
+
+      // Fetch family members from API (if needed)
+      try {
+        const response = await MemberList(currentUserId);
+        const data = response?.data?.data;
+
+        console.log('API Response:', data);
+
+        if (data) {
+          // Map all members (both independent and dependent) except the current user
+          const allOtherMembers = [
+            ...(data.independentMembers || []).filter((member: ApiMemberData) => member.id !== currentUserId),
+            ...(data.dependentMembers || [])
+          ];
+
+          const mappedFamilyMembers = allOtherMembers.map(mapApiDataToUserData);
+          setFamilyMembers(mappedFamilyMembers);
+        }
+      } catch (apiError) {
+        console.warn('API call failed, but user data loaded from localStorage:', apiError);
+        // Don't set error here since we have my card data from localStorage
+        setFamilyMembers([]); // Just set empty family members
+      }
+
     } catch (error) {
       console.error('Error fetching membership data:', error);
+      setError('Error loading membership data');
     } finally {
       setLoading(false);
     }
@@ -160,9 +252,9 @@ const MembershipCard: React.FC = () => {
     }
   };
 
-const handleBackClick = () => {
-  router.push('/dashboard');
-};
+  const handleBackClick = () => {
+    router.push('/dashboard');
+  };
 
   useEffect(() => {
     const handleResize = (): void => {
@@ -199,11 +291,17 @@ const handleBackClick = () => {
     );
   }
 
-  if (!data) {
+  if (error) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <p className="text-red-600">Error loading membership data</p>
+          <p className="text-red-600">{error}</p>
+          <button
+            onClick={fetchMembershipData}
+            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          >
+            Retry
+          </button>
         </div>
       </div>
     );
@@ -212,15 +310,15 @@ const handleBackClick = () => {
   return (
     <MasterHome>
       <div className="h-screen bg-gray-50">
-        <div className=" relative  overflow-y-auto">
+        <div className="relative overflow-y-auto">
           {/* Header */}
-          <div className="flex justify-between items-center mb-4 sm:mb-6 ">
+          <div className="flex justify-between items-center mb-4 sm:mb-6">
             <button
               className="flex items-center text-black font-bold hover:text-gray-700 transition-colors duration-200 text-sm sm:text-base"
               onClick={handleBackClick}
             >
-                 <FaLessThan className="w-4 h-4 mr-2" />
-            Back
+              <FaLessThan className="w-4 h-4 mr-2" />
+              Back
             </button>
           </div>
 
@@ -239,57 +337,61 @@ const handleBackClick = () => {
             <hr className="border-t-2 border-gray-800 w-[90%] mx-auto mb-6 sm:mb-8" />
 
             {/* Cards Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6 px-2 sm:px-5 md:px-8 lg:px-12 w-full  mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6 px-2 sm:px-5 md:px-8 lg:px-12 w-full mx-auto">
 
               {/* My Card */}
-              <div className="flex flex-col py-2">
-                <div
-                  className="flex items-center justify-between cursor-pointer md:cursor-default p-3 sm:p-5 md:p-6 w-full hover:bg-gray-100 rounded-lg transition-colors duration-200"
-                  onClick={() => handleCardToggle('mycard')}
-                >
-                  <span className="text-lg sm:text-xl font-semibold text-black md:text-center md:w-full">
-                    My Card
-                  </span>
-                  <div className="md:hidden">
-                    {expandedCard === 'mycard' ?
-                      <ChevronUp className="w-5 h-5" /> :
-                      <ChevronDown className="w-5 h-5" />
-                    }
-                  </div>
-                </div>
-
-                <div className="shadow-lg rounded-3xl p-3 sm:p-4 md:p-6 w-[95%] md:w-full mx-auto bg-white">
-                  <div className="h-px bg-black w-full mb-3 mt-1"></div>
-                  <div className={`transition-all duration-300 ease-in-out ${(expandedCard === 'mycard' || isDesktop) ? 'block opacity-100' : 'hidden opacity-0'
-                    } md:block md:opacity-100`}>
-                    <MembershipCardDisplay
-                      user={data.myCard}
-                      isMyCard={true}
-                      customerService={data.customerService}
-                    />
-                  </div>
-                </div>
-
-                <div className="text-right mt-3 sm:mt-4 px-2">
-                  <a
-                    href="#"
-                    className="text-blue-600 underline text-xs sm:text-sm hover:text-blue-800 transition-colors duration-200"
+              {myCard && (
+                <div className="flex flex-col py-2">
+                  <div
+                    className="flex items-center justify-between cursor-pointer md:cursor-default p-3 sm:p-5 md:p-6 w-full hover:bg-gray-100 rounded-lg transition-colors duration-200"
+                    onClick={() => handleCardToggle('mycard')}
                   >
-                    View ABHA card here
-                  </a>
+                    <span className="text-lg sm:text-xl font-semibold text-black md:text-center md:w-full">
+                      My Card
+                    </span>
+                    <div className="md:hidden">
+                      {expandedCard === 'mycard' ?
+                        <ChevronUp className="w-5 h-5" /> :
+                        <ChevronDown className="w-5 h-5" />
+                      }
+                    </div>
+                  </div>
+
+                  <div className="p-3 sm:p-4 md:p-6 w-[95%] md:w-full mx-auto 
+  bg-transparent sm:bg-white 
+  rounded-none sm:rounded-3xl 
+  shadow-none sm:shadow-lg">
+                    <div className="h-px bg-black w-full mb-3 mt-1"></div>
+                    <div className={`transition-all duration-300 ease-in-out ${(expandedCard === 'mycard' || isDesktop) ? 'block opacity-100' : 'hidden opacity-0'
+                      } md:block md:opacity-100`}>
+                      <MembershipCardDisplay
+                        user={myCard}
+                        isMyCard={true}
+                        customerService={customerService}
+                      />
+                    </div>
+                  </div>
+
+                  {/* <div className="text-right mt-3 sm:mt-4 px-2">
+                    <a
+                      href="#"
+                      className="text-blue-600 underline text-xs sm:text-sm hover:text-blue-800 transition-colors duration-200"
+                    >
+                      View ABHA card here
+                    </a>
+                  </div> */}
                 </div>
-              </div>
+              )}
 
               {/* Family Member Cards */}
-              {data.familyMembers.map((user: UserData) => (
+              {familyMembers.map((user: UserData) => (
                 <div key={user.user_id} className="flex flex-col py-2">
                   <div
                     className="flex items-center justify-between cursor-pointer md:cursor-default p-3 sm:p-5 md:p-6 w-full hover:bg-gray-100 rounded-lg transition-colors duration-200"
                     onClick={() => user.user_id !== undefined && handleCardToggle(user.user_id)}
-
                   >
                     <span className="text-lg sm:text-xl font-semibold text-black md:text-center md:w-full">
-                      {user.user_firstname}'s Card
+                      {user.user_firstname.split(' ')[0]}'s Card
                     </span>
                     <div className="md:hidden">
                       {expandedCard === user.user_id ?
@@ -299,28 +401,37 @@ const handleBackClick = () => {
                     </div>
                   </div>
 
-                  <div className="shadow-lg rounded-3xl p-3 sm:p-4 md:p-6 w-[95%] md:w-full mx-auto bg-white">
-                    <div className="h-px bg-black w-full mb-3 mt-1"></div>
+                  <div className="p-3 sm:p-4 md:p-6 w-[95%] md:w-full mx-auto 
+  bg-transparent sm:bg-white 
+  rounded-none sm:rounded-3xl 
+  shadow-none sm:shadow-lg">                    <div className="h-px bg-black w-full mb-3 mt-1"></div>
                     <div className={`transition-all duration-300 ease-in-out ${(expandedCard === user.user_id || isDesktop) ? 'block opacity-100' : 'hidden opacity-0'
                       } md:block md:opacity-100`}>
                       <MembershipCardDisplay
                         user={user}
-                        customerService={data.customerService}
+                        customerService={customerService}
                       />
                     </div>
                   </div>
 
-                  <div className="text-right mt-3 sm:mt-4 px-2">
+                  {/* <div className="text-right mt-3 sm:mt-4 px-2">
                     <a
                       href="#"
                       className="text-blue-600 underline text-xs sm:text-sm hover:text-blue-800 transition-colors duration-200"
                     >
                       View ABHA card here
                     </a>
-                  </div>
+                  </div> */}
                 </div>
               ))}
             </div>
+
+            {/* Show message if no data */}
+            {!myCard && familyMembers.length === 0 && !loading && (
+              <div className="text-center py-8">
+                <p className="text-gray-600">No membership cards found</p>
+              </div>
+            )}
           </div>
         </div>
       </div>

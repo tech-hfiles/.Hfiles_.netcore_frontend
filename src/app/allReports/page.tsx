@@ -49,6 +49,7 @@ const AllReportsPage = () => {
     const [selectedUser, setSelectedUser] = useState<string>('all');
     const [userName, setUserName] = useState<string>('User');
     const [memberList, setMemberList] = useState<Member[]>([]);
+    const [currentUserId, setCurrentUserId] = useState<number | null>(null);
     const [selectedReports, setSelectedReports] = useState<Set<number>>(new Set());
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -110,6 +111,19 @@ const AllReportsPage = () => {
         }
     };
 
+    
+    useEffect(() => {
+        const fetchCurrentUserId = async () => {
+          const id = await getUserId();
+          console.log("Setting currentUserId to:", id);
+          setCurrentUserId(id);
+        };
+      
+        fetchCurrentUserId();
+      }, []);
+      
+    
+
     const fetchMemberList = async () => {
         const currentUserId = await getUserId();
         try {
@@ -134,10 +148,20 @@ const AllReportsPage = () => {
     const fetchAllReports = async () => {
         try {
             setError('');
-            const userId = selectedUser !== 'all' ? parseInt(selectedUser, 10) : undefined;
-            const reportType = selectedReportType !== 'all' ? selectedReportType : undefined
+    
+            let userId: number | undefined;
+    
+            if (selectedUser === 'current') {
+                userId = await getUserId();
+            } else if (selectedUser !== 'all') {
+                const parsed = parseInt(selectedUser, 10);
+                userId = isNaN(parsed) ? undefined : parsed;
+            } // else keep userId as undefined to fetch all users' reports
+    
+            const reportType = selectedReportType !== 'all' ? selectedReportType : undefined;
+    
             const response = await ListReport(userId, reportType);
-
+    
             if (response && response.data && response.data.success) {
                 const apiData: ApiResponse = response.data;
                 setReports(apiData.data.reports || []);
@@ -148,10 +172,10 @@ const AllReportsPage = () => {
         } catch (error) {
             console.error('Error fetching reports:', error);
             setError('You are not authorized to view reports for this user.');
-        } finally {
         }
     };
-
+    
+    
     useEffect(() => {
         fetchAllReports();
     }, [selectedUser, selectedReportType]);
@@ -287,18 +311,28 @@ const AllReportsPage = () => {
 
     const filteredReports = reports.filter((report) => {
         const term = searchTerm.toLowerCase();
-
+      
         const matchesSearch =
-            report.reportName?.toLowerCase().includes(term) ||
-            report.reportType?.toLowerCase().includes(term) ||
-            report.userType?.toLowerCase().includes(term) ||
-            report.userId?.toString().includes(term);
+          report.reportName?.toLowerCase().includes(term) ||
+          report.reportType?.toLowerCase().includes(term) ||
+          report.userType?.toLowerCase().includes(term) ||
+          report.userId?.toString().includes(term);
+      
+        const matchesReportType =
+          selectedReportType === 'all' || report.reportType === selectedReportType;
+      
+          console.log(currentUserId);
+          Number(currentUserId);
 
-        const matchesReportType = selectedReportType === 'all' || report.reportType === selectedReportType;
-        const matchesUser = selectedUser === 'all' || report.userId.toString() === selectedUser;
-
+        const matchesUser =
+          selectedUser === 'all' ||
+          (selectedUser === 'current' && currentUserId !== null && report.userId === currentUserId) ||
+          report.userId.toString() === selectedUser;
+      
         return matchesSearch && matchesReportType && matchesUser;
-    });
+      });
+
+      
 
     return (
         <MasterHome>
@@ -430,6 +464,7 @@ const AllReportsPage = () => {
                                         className="appearance-none text-black border border-gray-400 px-3 md:px-4 py-2 pr-8 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm md:text-base"
                                     >
                                         <option value="all">All Users</option>
+                                         <option value="current">Self</option>
                                         {memberList.map((member) => (
                                             <option key={member.id} value={member.id.toString()}>
                                                 {member.firstName}
@@ -488,20 +523,37 @@ const AllReportsPage = () => {
 
                                     {/* User Filter */}
                                     <div className="relative flex-1">
-                                        <select
-                                            value={selectedUser}
-                                            onChange={(e) => setSelectedUser(e.target.value)}
-                                            className="appearance-none text-black border border-gray-400 px-3 py-2 pr-7 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-full text-sm"
-                                        >
-                                            <option value="all">All Users</option>
-                                            {memberList.map((member) => (
-                                                <option key={member.id} value={member.id.toString()}>
-                                                    {member.firstName}
-                                                </option>
-                                            ))}
-                                        </select>
-                                        <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 text-black" size={14} />
-                                    </div>
+                                    <select
+  value={selectedUser}
+  onChange={(e) => setSelectedUser(e.target.value)}
+  className="appearance-none text-black border border-gray-400 px-3 py-3 pr-7 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-full text-sm"
+>
+  <option value="current">Current User</option>
+  <option value="all">All Users</option>
+  {memberList.map((member) => (
+    <option key={member.id} value={member.id.toString()}>
+      {member.firstName}
+    </option>
+  ))}
+</select>
+  <ChevronDown
+    className="absolute right-2 top-1/2 transform -translate-y-1/2 text-black"
+    size={14}
+  />
+</div>
+<select
+  value={selectedUser}
+  onChange={(e) => setSelectedUser(e.target.value)}
+  className="appearance-none text-black border border-gray-400 px-3 py-3 pr-7 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-full text-sm"
+>
+  <option value="current">Current User</option>
+  <option value="all">All Users</option>
+  {memberList.map((member) => (
+    <option key={member.id} value={member.id.toString()}>
+      {member.firstName}
+    </option>
+  ))}
+</select>
 
                                     {/* Report Type Filter */}
                                     <div className="relative flex-1">

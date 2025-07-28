@@ -55,7 +55,7 @@ axiosInstance.interceptors.response.use(
     const message2 = error?.response?.data?.message ;
 
     if (status === 401) {
-      toast.error(message);
+      // toast.error(message);
        localStorage.clear(); // Optional: clear user data
         Router.push("/login");
       // window.location.href = "/";

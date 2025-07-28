@@ -1,5 +1,8 @@
 import { decryptData } from '@/app/utils/webCrypto';
+import { Calendar } from 'lucide-react';
 import React, { useEffect } from 'react'
+import DatePicker from 'react-datepicker';
+import "react-datepicker/dist/react-datepicker.css";
 
 type CountryCode = {
     country: string;
@@ -126,7 +129,7 @@ const MemberAdded: React.FC<MemberAddedProps> = ({ formik, handleCountryCodeChan
                             </div>
 
                             {/* Date of Birth */}
-                            <div>
+                            {/* <div>
                                 <input
                                     type="date"
                                     name="dob"
@@ -140,6 +143,34 @@ const MemberAdded: React.FC<MemberAddedProps> = ({ formik, handleCountryCodeChan
                                         : 'border-gray-300'
                                         }`}
                                 />
+                                {formik.touched.dob && formik.errors.dob && (
+                                    <p className="text-red-500 text-xs sm:text-sm mt-1">{formik.errors.dob}</p>
+                                )}
+                            </div> */}
+
+                            <div className="w-full relative">
+                                <DatePicker
+                                    selected={formik.values.dob ? new Date(formik.values.dob) : null}
+                                    onChange={(date) => formik.setFieldValue("dob", date)}
+                                    onBlur={formik.handleBlur}
+                                    name="dob"
+                                    placeholderText="yyyy-mm-dd"
+                                    dateFormat="yyyy-MM-dd"
+                                    maxDate={new Date()}
+                                    showYearDropdown
+                                    showMonthDropdown
+                                    dropdownMode="select"
+                                    yearDropdownItemNumber={100}
+                                    scrollableYearDropdown
+                                    className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 lg:py-3.5 text-sm sm:text-base border rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${formik.touched.dob && formik.errors.dob
+                                            ? "border-red-500 bg-red-50"
+                                            : "border-gray-300"
+                                        }`}
+                                    wrapperClassName="w-full"
+                                    popperClassName="z-50"
+                                    calendarClassName="border-2 border-gray-300 rounded-lg shadow-lg"
+                                />
+                                <Calendar className="absolute right-3 top-3.5 h-5 w-5 text-[#333333] pointer-events-none" />
                                 {formik.touched.dob && formik.errors.dob && (
                                     <p className="text-red-500 text-xs sm:text-sm mt-1">{formik.errors.dob}</p>
                                 )}

@@ -41,12 +41,12 @@ const MasterHeader = () => {
     try {
       const currentUserId = await getUserId();
       if (!currentUserId) {
-        toast.error("Please log in to view members.");
         return;
       }
       const response = await ListHFID(currentUserId);
 
       const fetchedHfid = response.data?.data;
+       localStorage.setItem("hfid", fetchedHfid);
       setHfid(fetchedHfid);
 
       setUserInfo((prev) => ({
@@ -66,7 +66,6 @@ const MasterHeader = () => {
     try {
       const currentUserId = await getUserId();
       if (!currentUserId) {
-        toast.error("Please log in to view members.");
         return;
       }
       const response = await PlaneShift(currentUserId);
@@ -121,6 +120,8 @@ const MasterHeader = () => {
     localStorage.removeItem('rzp_device_id');
     localStorage.removeItem('rzp_stored_checkout_id');
      localStorage.removeItem('subscriptionPlan');
+      localStorage.removeItem('phone');
+       localStorage.removeItem('hfid');
     router.push('/login');
   };
 
@@ -139,11 +140,12 @@ const MasterHeader = () => {
       
         const currentUserId = await getUserId();
       if (!currentUserId) {
-        toast.error("Please log in to view members.");
         return;
       }
         const response = await BasicDetailsList(currentUserId);
         const data = response?.data?.data;
+        const phone = data?.phone;
+         localStorage.setItem("phone", phone);
         if (data.profileURL) {
           setProfile(data.profileURL);
         }

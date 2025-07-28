@@ -83,7 +83,6 @@ const PrescriptionTable: React.FC<PrescriptionTableProps> = ({
         try {
             const currentUserId = await getUserId();
             if (!currentUserId) {
-                toast.error("Please log in to view members.");
                 return;
             }
             const response = await GetFmailyData(currentUserId)

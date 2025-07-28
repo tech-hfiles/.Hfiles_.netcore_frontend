@@ -62,7 +62,6 @@ const PrescriptionModal: React.FC<PrescriptionModalProps> = ({
         try {
             const currentUserId = await getUserId();
             if (!currentUserId) {
-                toast.error("Please log in to view members.");
                 return;
             }
             const response = await LIstAllData(currentUserId);

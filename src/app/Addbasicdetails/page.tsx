@@ -1318,7 +1318,7 @@ const AddBasicDetails: React.FC = () => {
                           value={formik.values.email}
                           onChange={handleRegularChange}
                           onBlur={formik.handleBlur}
-                          disabled={!userEmail?.isEmailVerified === true}
+                          // disabled={!userEmail?.isEmailVerified === true}
                           className={`w-full pl-10 sm:pl-12 pr-4 py-2 sm:py-3 border ${formik.touched.email && formik.errors.email ? 'border-red-500' : 'border-black'
                             } rounded-[7px] font-montserrat-400 ${userEmail?.isEmailVerified === true ? 'bg-gray-200 cursor-not-allowed' : 'bg-white'
                             } text-[#333333] placeholder-[#333333] focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 text-[16px] sm:text-lg`}

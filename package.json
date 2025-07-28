@@ -25,6 +25,7 @@
     "pdfjs-dist": "^5.3.93",
     "razorpay": "^2.9.6",
     "react": "^19.0.0",
+    "react-datepicker": "^8.4.0",
     "react-dom": "^19.0.0",
     "react-icons": "^5.5.0",
     "react-pdf": "^10.0.1",

@@ -63,7 +63,6 @@ const MedicalDashboard = () => {
         try {
             const currentUserId = await getUserId();
             if (!currentUserId) {
-                toast.error("Please log in to view members.");
                 return;
             }
             const response = await MemberList(currentUserId);
@@ -237,11 +236,10 @@ const MedicalDashboard = () => {
         setSelectedFile(null);
     };
 
-    const StorageData = async () =>{
+    const StorageData = async () => {
         try {
             const currentUserId = await getUserId();
             if (!currentUserId) {
-                toast.error("Please log in to view members.");
                 return;
             }
             const response = await ListStorage(currentUserId)
@@ -252,9 +250,9 @@ const MedicalDashboard = () => {
         }
     }
 
-    useEffect(() =>{
+    useEffect(() => {
         StorageData();
-    },[])
+    }, [])
 
     return (
         <MasterHome>
@@ -520,8 +518,8 @@ const MedicalDashboard = () => {
                         <div className="border p-4 rounded-lg text-center shadow border-blue-400">
                             <p className="text-gray-800 font-semibold text-sm">
                                 {stroage?.quotaMb && stroage?.usedStorageMbTotal
-                                ? `${(stroage.quotaMb - stroage.usedStorageMbTotal).toFixed(2)} of ${stroage.quotaMb}`
-                                : '--'}<br />MB Left
+                                    ? `${(stroage.quotaMb - stroage.usedStorageMbTotal).toFixed(2)} of ${stroage.quotaMb}`
+                                    : '--'}<br />MB Left
                             </p>
                         </div>
 

@@ -87,8 +87,8 @@ const FamilyPrescriptionPage = () => {
         const medicines = data.medications.map(med => ({
             medicine: med.medication,
             dosage: med.dosage,
-            schedule: med.schedule.join(','), // Convert array to comma-separated string
-            timings: med.timings.join(',')    // Convert array to comma-separated string
+          schedule: med.schedule, // Keep as array: ["Morning", "Evening"] not "Morning,Evening"
+        timings: med.timings  
         }));
 
         return {
@@ -184,7 +184,6 @@ const FamilyPrescriptionPage = () => {
         try {
             const currentUserId = await getUserId();
             if (!currentUserId) {
-                toast.error("Please log in to view members.");
                 return;
             }
             const response = await GetFmailyData(currentUserId)

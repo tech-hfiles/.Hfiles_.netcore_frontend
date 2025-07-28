@@ -5,6 +5,8 @@ import React, { useState, useEffect } from 'react';
 import { Eye, EyeOff, User, Calendar, Mail, Lock, ArrowLeft, RefreshCw } from 'lucide-react';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
+import DatePicker from 'react-datepicker';
+import "react-datepicker/dist/react-datepicker.css";
 import { AddSignUp, listCounty, SignUpOTPVerify } from '../services/HfilesServiceApi';
 import DynamicPage from '../components/Header&Footer/DynamicPage';
 import { toast, ToastContainer } from 'react-toastify';
@@ -23,7 +25,7 @@ const SignUp = () => {
   const [isCaptchaVerified, setIsCaptchaVerified] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isOtpSubmitting, setIsOtpSubmitting] = useState(false);
-  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(null);
   const router = useRouter();
   const [listCountyCode, setListCountryCode] = useState<any[]>([]);
 
@@ -48,7 +50,6 @@ const SignUp = () => {
     lastName: Yup.string().required('Last name is required'),
     dob: Yup.string()
       .required('Date of birth is required')
-      .matches(/^\d{2}-\d{2}-\d{4}$/, 'Please enter DOB in dd-mm-yyyy format')
       .test('age-limit', 'You must be at least 18 years old', function (value) {
         if (!value) return false;
 
@@ -119,22 +120,20 @@ const SignUp = () => {
     getDecryptedTokenData();
   }, []);
 
-  const convertToDateInputFormat = (ddmmyyyy: string) => {
-    if (!ddmmyyyy || !ddmmyyyy.includes('-')) return '';
-    const [day, month, year] = ddmmyyyy.split('-');
-    return `${year}-${month}-${day}`;
-  };
-
-  const convertToDisplayFormat = (yyyymmdd: string) => {
-    if (!yyyymmdd) return '';
-    const [year, month, day] = yyyymmdd.split('-');
+  // Format date to dd-mm-yyyy
+  const formatDateToDDMMYYYY = (date:any) => {
+    if (!date) return '';
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear();
     return `${day}-${month}-${year}`;
   };
 
-  const handleDateChange = (dateValue: string) => {
-    const formattedDate = convertToDisplayFormat(dateValue);
+  // Handle date change from DatePicker
+  const handleDateChange = (date:any) => {
+    setSelectedDate(date);
+    const formattedDate = formatDateToDDMMYYYY(date);
     formik.setFieldValue('dob', formattedDate);
-    setShowDatePicker(false);
   };
 
   // Formik setup
@@ -284,6 +283,9 @@ const SignUp = () => {
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
+  // Common input classes for consistent styling
+  const inputClasses = "w-full px-4 py-3 rounded-lg placeholder:text-[14px] sm:placeholder:text-[15px] text-[#333333] font-montserrat-400 bg-white border focus:outline-none focus:ring-0";
+
   return (
     <DynamicPage>
       <div className="flex flex-col md:flex-row w-full h-[calc(100vh-80px)] sm:h-[calc(100vh-90px)]  lg:h-[calc(100vh-129px)] 2xl:h-[calc(100vh-140px)]">
@@ -292,8 +294,6 @@ const SignUp = () => {
         <div className="hidden md:flex flex-1 relative bg-gradient-to-b from-white via-white to-cyan-200 items-center justify-center p-6 overflow-hidden">
           {/* Curved Shape */}
           <div className="bg-white right-[-70%] absolute top-1/2 -translate-y-1/2 h-[120%] w-full rounded-l-[100%] md:rounded-l-[75%] lg:rounded-l-[100%] z-0"></div>
-
-          {/* <div className="absolute right-0 top-0 h-full w-1/2 bg-white rounded-l-[100%]"></div> */}
 
           {/* Image Container with responsive sizing and left shift */}
           <div className="relative z-10 text-center w-full max-w-[400px] lg:left-[-70px]">
@@ -305,12 +305,10 @@ const SignUp = () => {
           </div>
         </div>
 
-
         <div className="flex-1 flex items-start lg:items-center justify-center p-6 relative">
           <div className="w-full max-w-3xl lg:ml-[-15%] mx-4">
             <form onSubmit={formik.handleSubmit} className="space-y-4 lg:space-y-6">
-              {/* Mobile Back Button */}
-
+              {/* Desktop Title */}
               <div className="hidden md:block text-center mb-6 lg:mb-8">
                 <h1 className="text-black text-xl lg:text-2xl 2xl:text-3xl sm:text-lg font-montserrat-600">
                   <span className="text-[#0331b5]  font-poppins-600">Sign Up</span> to Simplify Your Health Records  Today
@@ -318,24 +316,22 @@ const SignUp = () => {
                 <div className="mt-2 2xl:mt-3 mx-auto w-24 lg:w-40 border-b-2 border-[#0331b5]"></div>
               </div>
 
-              {/* For phone */}
+              {/* Mobile Title */}
               <div className=" md:hidden mt-[10px] text-center mb-6 lg:mb-8">
                 <h1 className="text-[#0331b5] text-[20px] custom_title sm:text-lg font-poppins-600">
                   Welcome to Health Files!
                 </h1>
                 <p className="text-[#000000] custom_subtext  text-sm lg:text-base font-montserrat-400 mt-1">
-                  Let’s simplify your healthcare.
+                  Let's simplify your healthcare.
                 </p>
                 <div className="mt-2 mx-auto w-24 border-b-2 border-[#0331b5]"></div>
               </div>
-              {/* ///////////////////////////////////// */}
-
 
               {/* Form Fields */}
-              <div className="space-y-3 ">
+              <div className="space-y-3">
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2 gap-3 lg:gap-4">
+                  {/* First Name */}
                   <div>
-                    {/* First Name */}
                     <input
                       type="text"
                       name="firstName"
@@ -343,15 +339,15 @@ const SignUp = () => {
                       onChange={formik.handleChange}
                       onBlur={formik.handleBlur}
                       placeholder="First Name"
-                      className="w-full pl-4  py-3 rounded-lg placeholder:text-[14px] sm:placeholder:text-[15px] text-[#333333] font-montserrat-400 bg-white border focus:outline-none focus:ring-0 "
+                      className={inputClasses}
                     />
                     {formik.touched.firstName && formik.errors.firstName && (
-                      <p className="text-red-500 text-xs ">{formik.errors.firstName}</p>
+                      <p className="text-red-500 text-xs mt-1">{formik.errors.firstName}</p>
                     )}
                   </div>
 
                   {/* Last Name */}
-                  <div className="relative">
+                  <div>
                     <input
                       type="text"
                       name="lastName"
@@ -359,38 +355,46 @@ const SignUp = () => {
                       onChange={formik.handleChange}
                       onBlur={formik.handleBlur}
                       placeholder="Last Name"
-                      className="w-full pl-4 py-3 rounded-lg placeholder:text-[14px] sm:placeholder:text-[15px] text-[#333333] font-montserrat-400 bg-white border focus:outline-none focus:ring-0 "
+                      className={inputClasses}
                     />
                     {formik.touched.lastName && formik.errors.lastName && (
-                      <p className="text-red-500 text-xs ">{formik.errors.lastName}</p>
+                      <p className="text-red-500 text-xs mt-1">{formik.errors.lastName}</p>
                     )}
                   </div>
 
-                  {/* Date of Birth with Calendar */}
+                  {/* Date of Birth with React DatePicker */}
                   <div className="relative">
-                    <input
-                      id="dobPicker"
-                      type="date"
-                      name="dob"
-                      value={convertToDateInputFormat(formik.values.dob)}
-                      onChange={(e) => handleDateChange(e.target.value)}
+                    <DatePicker
+                      selected={selectedDate}
+                      onChange={handleDateChange}
                       onBlur={formik.handleBlur}
-                      placeholder="DOB"
-                      className="w-full px-4   py-3 rounded-lg bg-white text-gray-500   font-montserrat-300 border border-black focus:outline-none focus:ring-0 "
-                      max={new Date().toISOString().split("T")[0]}
+                      placeholderText="Date of Birth"
+                      dateFormat="dd-MM-yyyy"
+                      maxDate={new Date()}
+                      showYearDropdown
+                      showMonthDropdown
+                      dropdownMode="select"
+                      yearDropdownItemNumber={100}
+                      scrollableYearDropdown
+                      className={inputClasses}
+                      wrapperClassName="w-full"
+                      popperClassName="z-50"
+                      calendarClassName="border-2 border-gray-300 rounded-lg shadow-lg"
                     />
-
+                    <Calendar 
+                      className="absolute right-3 top-3 h-5 w-5 text-[#333333] pointer-events-none" 
+                    />
                     {formik.touched.dob && formik.errors.dob && (
-                      <p className="text-red-500 text-xs ">{formik.errors.dob}</p>
+                      <p className="text-red-500 text-xs mt-1">{formik.errors.dob}</p>
                     )}
                   </div>
 
                   {/* Phone Number - Merged Input */}
-                  <div className="relative">
+                  <div>
                     <div
                       className={`flex items-center bg-white rounded-lg border px-4 
-        ${formik.touched.phone && formik.errors.phone ? 'border-red-400' : 'border-black'}
-        `}
+                        ${formik.touched.phone && formik.errors.phone ? 'border-red-400' : 'border-black'}
+                      `}
                     >
                       {/* Country Code Selector */}
                       <select
@@ -409,7 +413,6 @@ const SignUp = () => {
                           ))}
                       </select>
 
-
                       {/* Phone Number Input */}
                       <input
                         type="tel"
@@ -419,18 +422,18 @@ const SignUp = () => {
                         onChange={formik.handleChange}
                         onBlur={formik.handleBlur}
                         placeholder="Phone No."
-                        className="w-full bg-transparent pl-2 py-3 placeholder:text-[14px] sm:placeholder:text-[15px] t text-[#333333] font-montserrat-400 focus:outline-none"
+                        className="w-full bg-transparent pl-2 py-3 placeholder:text-[14px] sm:placeholder:text-[15px] text-[#333333] font-montserrat-400 focus:outline-none"
                       />
                     </div>
 
                     {/* Error Message */}
                     {formik.touched.phone && formik.errors.phone && (
-                      <p className="text-red-500 text-xs pt-1 px-1">{formik.errors.phone}</p>
+                      <p className="text-red-500 text-xs mt-1">{formik.errors.phone}</p>
                     )}
                   </div>
 
                   {/* Email */}
-                  <div className="relative">
+                  <div>
                     <input
                       type="email"
                       name="email"
@@ -438,10 +441,10 @@ const SignUp = () => {
                       onChange={formik.handleChange}
                       onBlur={formik.handleBlur}
                       placeholder="Email ID"
-                      className="w-full pl-4 py-3 rounded-lg placeholder:text-[14px] sm:placeholder:text-[15px] text-[#333333] font-montserrat-400  bg-white border focus:outline-none focus:ring-0 "
+                      className={inputClasses}
                     />
                     {formik.touched.email && formik.errors.email && (
-                      <p className="text-red-500 text-xs ">{formik.errors.email}</p>
+                      <p className="text-red-500 text-xs mt-1">{formik.errors.email}</p>
                     )}
                   </div>
 
@@ -454,7 +457,7 @@ const SignUp = () => {
                       onChange={formik.handleChange}
                       onBlur={formik.handleBlur}
                       placeholder="Password"
-                      className="w-full pl-4 py-3 rounded-lg placeholder:text-[14px] sm:placeholder:text-[15px] text-[#333333] font-montserrat-400 bg-white border focus:outline-none focus:ring-0 "
+                      className={inputClasses}
                     />
                     <button
                       type="button"
@@ -464,38 +467,36 @@ const SignUp = () => {
                       {showPassword ? <Eye className="h-5 w-5 text-[#333333]" /> : <EyeOff className="h-5 w-5 text-[#333333]" />}
                     </button>
                     {formik.touched.password && formik.errors.password && (
-                      <p className="text-red-500 text-xs ">{formik.errors.password}</p>
+                      <p className="text-red-500 text-xs mt-1">{formik.errors.password}</p>
                     )}
                   </div>
                 </div>
 
                 {/* Confirm Password - Full width */}
-                <div className="">
-                  <div className="relative ">
-                    <input
-                      type={showConfirmPassword ? 'text' : 'password'}
-                      name="confirmPassword"
-                      value={formik.values.confirmPassword}
-                      onChange={formik.handleChange}
-                      onBlur={formik.handleBlur}
-                      placeholder="Confirm Password"
-                      className="w-full pl-4 py-3 rounded-lg placeholder:text-[14px] sm:placeholder:text-[15px] text-[#333333] font-montserrat-400 bg-white border focus:outline-none focus:ring-0 "
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
-                    >
-                      {showConfirmPassword ? <Eye className="h-5 w-5 text-[#333333]" /> : <EyeOff className="h-5 w-5 text-[#333333]" />}
-                    </button>
-                    {formik.touched.confirmPassword && formik.errors.confirmPassword && (
-                      <p className="text-red-500 text-xs  ">{formik.errors.confirmPassword}</p>
-                    )}
-                  </div>
+                <div className="relative">
+                  <input
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    name="confirmPassword"
+                    value={formik.values.confirmPassword}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    placeholder="Confirm Password"
+                    className={inputClasses}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
+                  >
+                    {showConfirmPassword ? <Eye className="h-5 w-5 text-[#333333]" /> : <EyeOff className="h-5 w-5 text-[#333333]" />}
+                  </button>
+                  {formik.touched.confirmPassword && formik.errors.confirmPassword && (
+                    <p className="text-red-500 text-xs mt-1">{formik.errors.confirmPassword}</p>
+                  )}
                 </div>
 
-                {/* New Captcha Component */}
-                <div className=" relative flex justify-center mt-4">
+                {/* Captcha Component */}
+                <div className="relative flex justify-center mt-4">
                   <Captcha onVerify={() => setIsCaptchaVerified(true)} />
                 </div>
 
@@ -507,14 +508,14 @@ const SignUp = () => {
                     checked={formik.values.termsAccepted}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
-                    className="w-4 h-4  bg-white border-gray-300 rounded "
+                    className="w-4 h-4 bg-white border-gray-300 rounded"
                   />
                   <label className="text-xs xl:text-[14px] font-montserrat-400 text-center">
-                    I Accept the <a href="#" className="text-[#0331b5] font-semibold hover:underline">Terms & Conditions</a> And  <a href="#" className="text-[#0331b5] font-semibold hover:underline">Terms & Conditions</a>
+                    I Accept the <a href="#" className="text-[#0331b5] font-semibold hover:underline">Terms & Conditions</a> And  <a href="#" className="text-[#0331b5] font-semibold hover:underline">Privacy Policy</a>
                   </label>
                 </div>
                 {formik.touched.termsAccepted && formik.errors.termsAccepted && (
-                  <p className="text-red-500 text-xs  text-center">{formik.errors.termsAccepted}</p>
+                  <p className="text-red-500 text-xs text-center">{formik.errors.termsAccepted}</p>
                 )}
 
                 {/* OTP Section */}
@@ -535,7 +536,7 @@ const SignUp = () => {
                       </div>
                     </div>
                     <div className="flex justify-between items-center px-4">
-                      {/* Timer on the left or right */}
+                      {/* Timer */}
                       <div className="text-blue-800 text-sm font-mono">
                         {formatTime(timer)}
                       </div>
@@ -552,11 +553,10 @@ const SignUp = () => {
                       )}
                     </div>
 
-                    {/* Error message below both */}
+                    {/* Error message */}
                     {otpError && (
                       <p className="text-red-300 text-sm text-center mt-1">{otpError}</p>
                     )}
-
                   </div>
                 )}
 
@@ -577,8 +577,8 @@ const SignUp = () => {
                     <button
                       type="submit"
                       disabled={isSubmitting || !isCaptchaVerified}
-                      className={`w-full primary text-white font-bold py-4   sm:py-4 rounded-lg 
-                           font-poppins-600  text-sm sm:text-[17px] px-6  transition-all duration-300 transform hover:scale-105 ${isSubmitting || !isCaptchaVerified ? 'opacity-50' : ''
+                      className={`w-full primary text-white font-bold py-4 sm:py-4 rounded-lg 
+                           font-poppins-600 text-sm sm:text-[17px] px-6 transition-all duration-300 transform hover:scale-105 ${isSubmitting || !isCaptchaVerified ? 'opacity-50' : ''
                         }`}
                     >
                       {isSubmitting ? 'Signing Up...' : 'Sign Up'}

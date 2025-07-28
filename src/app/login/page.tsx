@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { Eye, EyeOff } from 'lucide-react';
-import { listCounty, LoginOTp, LoginPassword, LoginWithOTPhahaha } from '../services/HfilesServiceApi';
+import { listCounty, LoginOTp, LoginPassword, LoginWithOTPhahaha, SendOtpForgot } from '../services/HfilesServiceApi';
 import { useRouter } from 'next/navigation';
 import DynamicPage from '../components/Header&Footer/DynamicPage';
 import { toast, ToastContainer } from 'react-toastify';
@@ -15,10 +15,12 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [timer, setTimer] = useState(0);
   const [showResendOtp, setShowResendOtp] = useState(false);
+  const [isSendingForgotOtp, setIsSendingForgotOtp] = useState(false);
   const router = useRouter();
   const [listCountyCode, setListCountryCode] = useState<any[]>([]);
 
   const isPhoneNumber = (value: string) => /^\d{10}$/.test(value);
+  const isEmail = (value: string) => /\S+@\S+\.\S+/.test(value);
 
   const ListCoutny = async () => {
     try {
@@ -83,18 +85,50 @@ export default function LoginPage() {
     password: loginMode === 'password'
       ? Yup.string()
         .required('Password is required')
-        .min(8, 'Password must be at least 8 characters')
-        .matches(/[A-Z]/, 'Must contain at least one uppercase letter')
-        .matches(/[a-z]/, 'Must contain at least one lowercase letter')
-        .matches(/\d/, 'Must contain at least one number')
-        .matches(/[@$!%*?&#^()_\-+={}[\]|\\:;"'<>,./~`]/, 'Must contain at least one special character')
       : Yup.string().notRequired(),
     otp: loginMode === 'OTP'
       ? Yup.string().required('OTP is required').length(6, 'OTP must be 6 digits')
       : Yup.string().notRequired(),
   });
 
-  
+  // Handle Forgot Password
+  const handleForgotPassword = async () => {
+    const emailOrPhone = formik.values.emailOrPhone;
+    
+    // Validate that input exists and is an email
+    if (!emailOrPhone) {
+      toast.error('Please enter your email address first');
+      return;
+    }
+    
+    if (!isEmail(emailOrPhone)) {
+      toast.error('Please enter a valid email address for password recovery');
+      return;
+    }
+
+    try {
+      setIsSendingForgotOtp(true);
+      
+      // Store email in localStorage
+      localStorage.setItem('recipientEmail', emailOrPhone);
+      
+      // Call SendOtpForgot API
+      const payload = { email: emailOrPhone };
+      const res = await SendOtpForgot(payload);
+      
+      toast.success(`${res.data.message}`);
+      
+      // Navigate to forgot-password page
+      router.push('/forgot-password');
+      
+    } catch (error) {
+      const err = error as any;
+      toast.error(`${err.response?.data?.message || 'Failed to send reset OTP'}`);
+      console.error("Forgot password error:", error);
+    } finally {
+      setIsSendingForgotOtp(false);
+    }
+  };
 
   const formik = useFormik({
     initialValues: {
@@ -248,7 +282,6 @@ export default function LoginPage() {
           </div>
         </div>
 
-
         {/* Right Side - Login Form */}
         <div className="w-full bg-white  md:w-1/2 flex justify-center items-center py-6 sm:py-8 md:py-10 px-4 sm:px-6 md:px-8">
           <form onSubmit={formik.handleSubmit} className="w-full max-w-lg ">
@@ -261,7 +294,6 @@ export default function LoginPage() {
                 className="w-20 sm:w-24 md:w-28 mx-auto mb-3 sm:mb-4"
               />
               <h1 className="text-blue-800 text-2xl sm:text-3xl font-poppins-600 mb-2">Welcome Back!</h1>
-              {/* Centered border */}
               <div className="border-b-2 border-blue-800 w-16 sm:w-20 mx-auto"></div>
             </div>
 
@@ -291,7 +323,6 @@ export default function LoginPage() {
                     </select>
                   )}
 
-                  {/* Input field - Changed from type="tel" to type="text" */}
                   <input
                     type="text"
                     name="emailOrPhone"
@@ -306,7 +337,6 @@ export default function LoginPage() {
                 </div>
               </div>
 
-              {/* Error Message */}
               {formik.touched.emailOrPhone && formik.errors.emailOrPhone && (
                 <div className="px-2 pt-1">
                   <p className="text-red-500 text-xs sm:text-sm">{formik.errors.emailOrPhone}</p>
@@ -341,9 +371,14 @@ export default function LoginPage() {
                   <p className="text-red-500 text-xs sm:text-sm mt-1">{formik.errors.password}</p>
                 )}
                 <div className="text-right mt-2">
-                  <a href="/forgot-password" className="text-[#0331b5] text-xs sm:text-sm font-poppins-600 hover:underline">
-                    Forgot Password?
-                  </a>
+                  <button
+                    type="button"
+                    onClick={handleForgotPassword}
+                    disabled={isSendingForgotOtp}
+                    className="text-[#0331b5] text-xs sm:text-sm font-poppins-600 hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isSendingForgotOtp ? 'Sending...' : 'Forgot Password?'}
+                  </button>
                 </div>
               </div>
             )}
@@ -415,15 +450,11 @@ export default function LoginPage() {
             )}
 
             {/* OR Divider */}
-            {/* <div className="text-center mb-3 sm:mb-4">
-              <span className="text-blue-800 font-bold text-sm sm:text-base">OR</span>
-            </div> */}
             <div className="flex items-center justify-center mb-3 sm:mb-4">
               <hr className="flex-grow border-t border-gray-400 " />
               <span className="px-5 text-blue-800 font-bold text-sm sm:text-base">OR</span>
               <hr className="flex-grow border-t border-gray-400" />
             </div>
-
 
             {/* Toggle Login Mode Button */}
             <div className="mb-4">
@@ -439,6 +470,7 @@ export default function LoginPage() {
             </div>
 
             <hr className='mb-4 w-1/5 border-t-2 mx-auto border-[#333333]'></hr>
+            
             {/* Sign Up Link */}
             <div className="text-center">
               <span className="text-black font-Montserrat-400 text-xs sm:text-sm">

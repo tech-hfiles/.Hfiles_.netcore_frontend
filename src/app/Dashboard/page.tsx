@@ -839,7 +839,7 @@ function Dashboard() {
 
               <div className="mobile-samantha-section">
                 <div className="mobile-samantha-image">
-                  <img src="/Reception Page/SamantaGIF.gif" alt="Personal Health Manager" />
+                    <img src="/SamantaGIF.gif" alt="Personal Health Manager" />
 
                 </div>
                 <div className="mobile-samantha-text">

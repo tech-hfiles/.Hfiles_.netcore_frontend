@@ -235,7 +235,6 @@ const MedicalPage = () => {
     const ShowAllList = async () => {
         const currentUserId = await getUserId();
         if (!currentUserId) {
-            toast.error("Please log in to view members.");
             setIsLoading(false);
             return;
         }
@@ -389,7 +388,6 @@ const MedicalPage = () => {
         try {
             const currentUserId = await getUserId();
             if (!currentUserId) {
-                toast.error("Please log in to view members.");
                 setIsLoading(false);
                 return;
             }
@@ -447,7 +445,6 @@ const MedicalPage = () => {
         setIsLoading(true);
         const currentUserId = await getUserId();
         if (!currentUserId) {
-            toast.error("Please log in to view members.");
             setIsLoading(false);
             return;
         }
@@ -481,7 +478,6 @@ const MedicalPage = () => {
         try {
             const currentUserId = await getUserId();
             if (!currentUserId) {
-                toast.error("Please log in to view members.");
                 return;
             }
             const userIdToUse = selectedUser === "all" ? currentUserId : parseInt(selectedUser, 10);
@@ -573,7 +569,6 @@ const MedicalPage = () => {
     const handleSubmit = async () => {
         const currentUserId = await getUserId();
         if (!currentUserId) {
-            toast.error("Please log in to view members.");
             return;
         }
 
@@ -625,7 +620,6 @@ const MedicalPage = () => {
         onSubmit: async (values) => {
             const currentUserId = await getUserId();
             if (!currentUserId) {
-                toast.error("Please log in to view members.");
                 return;
             }
             if (editingIndex !== null) {
@@ -1279,7 +1273,7 @@ const MedicalPage = () => {
                         handleAllergyChange={handleAllergyChange} toggleMedicationTextarea={toggleMedicationTextarea} isMedicationTextareaOpen={isMedicationTextareaOpen}
                         medicationTextarea={medicationTextarea} setMedicationTextarea={setMedicationTextarea} setIsMedicationTextareaOpen={setIsMedicationTextareaOpen} handleSaveMedicationTextarea={handleSaveMedicationTextarea}
                         toggleModal={toggleModal} handleSaveAllergies={handleSaveAllergies} isAllergySaving={isAllergySaving}
-                        openAllergyEditModal={openAllergyEditModal} />
+                        openAllergyEditModal={openAllergyEditModal} closeMedicationModal={closeMedicationModal} />
                 )}
 
                 {/* Medical History Section */}

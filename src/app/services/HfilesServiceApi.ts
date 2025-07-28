@@ -472,6 +472,17 @@ export const ImmunationAdd = async (payload:any) =>{
   return axiosInstance.post(`${endpoints.IMMUNIZATION.AddImmunization}`,payload)
 }
 
+export const DataImmunaztion =async (userId:number) =>{
+  return axiosInstance.get(`${endpoints.IMMUNIZATION.ListDatImmunization(userId)}`)
+}
+
+export const ImmunatiomnEdit = async (id:number , payload:any) =>{
+  return axiosInstance.put(`${endpoints.IMMUNIZATION.EditImmunization}/${id}`,payload)
+}
+
+export const ImmunatiomnDelete = async (id:number) =>{
+  return axiosInstance.delete(`${endpoints.IMMUNIZATION.DeleteImmunization}/${id}`)
+}
 
 // Feed Back 
 

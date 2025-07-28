@@ -91,7 +91,9 @@ const ReportsPage = () => {
                 const apiResponse: ApiResponse = response.data;
                 setReports(apiResponse.data.reports || []);
                 setTotalReportsCount(apiResponse.data.totalReportsCount || 0);
-                setUserNames(apiResponse.data.reports[0].userName)
+                // setUserNames(apiResponse.data.reports[0].userName)
+                setUserNames((apiResponse.data.reports[0].userName as unknown as string).split(" ")[0]);
+
 
             } else {
                 setReports([]);
@@ -290,7 +292,6 @@ const ReportsPage = () => {
         try {
             const currentUserId = await getUserId();
             if (!currentUserId) {
-                toast.error("Please log in to view members.");
                 return;
             }
             const response = await MemberList(currentUserId);
@@ -451,7 +452,7 @@ const ReportsPage = () => {
                             Back
                         </button>
                     </div>
-                    <h1 className="text-2xl flex justify-center font-bold">
+                    <h1 className="text-md sm:text-2xl w-full flex justify-center font-bold">
                         <span className="text-blue-800">{userNames}'s&nbsp;</span>
                         <span className="text-gray-500">{reportType} Reports</span>
                     </h1>

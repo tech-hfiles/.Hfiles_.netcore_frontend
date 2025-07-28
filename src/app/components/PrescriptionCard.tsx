@@ -48,7 +48,7 @@ const PrescriptionCard: React.FC<Props> = ({
         ['Dosage', transformedPrescription.dosage],
         ['Schedule', transformedPrescription.schedule],
         ['Timing', transformedPrescription.timing],
-        ['Id', transformedPrescription.id],
+        // ['Id', transformedPrescription.id],
     ];
 
     const handleDelete = async (prescriptionId: number) => {
@@ -78,7 +78,6 @@ const PrescriptionCard: React.FC<Props> = ({
         try {
             const currentUserId = await getUserId();
             if (!currentUserId) {
-                toast.error("Please log in to view members.");
                 return;
             }
             const response = await GetFmailyData(currentUserId)

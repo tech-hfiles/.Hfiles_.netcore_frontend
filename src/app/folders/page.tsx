@@ -100,7 +100,6 @@ export default function Folders() {
         try {
             const currentUserId = await getUserId();
             if (!currentUserId) {
-                toast.error("Please log in to view members.");
                 return;
             }
             const includeArray = selectedUser !== 'all' ? [parseInt(selectedUser)] : [];
@@ -141,7 +140,6 @@ export default function Folders() {
         try {
             const currentUserId = await getUserId();
             if (!currentUserId) {
-                toast.error("Please log in to view members.");
                 return;
             }
             const response = await MemberList(currentUserId);

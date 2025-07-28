@@ -150,7 +150,7 @@ const page = () => {
                 ? 'https://localhost:7113'
                 : 'https://test.testhfiles.in';
 
-                const response = await fetch(`${baseUrl}/api/reports/shared/${shareId}`);
+                const response = await fetch(`${baseUrl}/api/prescriptions/shared/${shareId}`);
 
             // const response = await fetch(`https://localhost:7113/api/reports/shared/${shareId}`);
             const result: ApiResponse = await response.json();

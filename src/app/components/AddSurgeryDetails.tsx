@@ -2,6 +2,7 @@ import { faEdit } from '@fortawesome/free-regular-svg-icons';
 import { faPaperPlane } from '@fortawesome/free-solid-svg-icons';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { useRouter } from 'next/navigation';
 import React from 'react'
 
 interface HistoryItem {
@@ -21,8 +22,22 @@ interface AddSurgeryDetailsProps {
 
 const AddSurgeryDetails: React.FC<AddSurgeryDetailsProps> = ({
     historyList, handleEdit, setShowForm }) => {
+    const router = useRouter();
 
-        console.log(historyList,"historyList")
+    const handleClick = (item: any) => {
+        const { folderId, surgeryName } = item;
+
+        if (!folderId || !surgeryName) {
+            console.warn('Missing folderId or surgeryName');
+            return;
+        }
+
+        const url = `/folders/${folderId}/${encodeURIComponent(surgeryName)}`;
+        console.log('Navigating to:', url);
+        router.push(url);
+    };
+
+
     return (
         <div>
             {/* Table with responsive design */}
@@ -40,20 +55,20 @@ const AddSurgeryDetails: React.FC<AddSurgeryDetailsProps> = ({
                         </thead>
 
                         <tbody>
-                            {historyList.map((item: HistoryItem, index: number) => (
+                            {historyList.map((item:any, index: number) => (
                                 <tr key={index} className="border-t">
                                     <td className="p-2 sm:p-3 border-r text-xs sm:text-sm">{item.surgeryName}</td>
                                     <td className="p-2 sm:p-3 border-r text-xs sm:text-sm hidden sm:table-cell">
-  {item.surgeryDate
-    ? new Date(
-        item.surgeryDate.split("-").reverse().join("-") // Convert to YYYY-MM-DD
-      ).toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "numeric",
-        day: "numeric"
-      })
-    : "—"}
-</td>
+                                        {item.surgeryDate
+                                            ? new Date(
+                                                item.surgeryDate.split("-").reverse().join("-") // Convert to YYYY-MM-DD
+                                            ).toLocaleDateString("en-US", {
+                                                year: "numeric",
+                                                month: "numeric",
+                                                day: "numeric"
+                                            })
+                                            : "—"}
+                                    </td>
 
                                     <td className="p-2 sm:p-3 border-r text-xs sm:text-sm hidden sm:table-cell">{item.hospitalName || "—"}</td>
                                     <td className="p-2 sm:p-3 border-r text-xs sm:text-sm hidden sm:table-cell">{item.doctorName || "—"}</td>
@@ -65,7 +80,11 @@ const AddSurgeryDetails: React.FC<AddSurgeryDetailsProps> = ({
                                             <FontAwesomeIcon icon={faEdit} className="w-3 h-3 sm:w-4 sm:h-4" />
                                         </button>
 
-                                        <button className="text-red-500 hover:text-red-700">
+                                        <button
+                                            className="text-red-500 hover:text-green-700"
+                                            onClick={() => handleClick(item)}
+                                            title="View Surgery Folder"
+                                        >
                                             <FontAwesomeIcon icon={faPaperPlane} className="w-3 h-3 sm:w-4 sm:h-4" />
                                         </button>
                                     </td>

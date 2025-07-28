@@ -1,4 +1,7 @@
+import { Calendar } from 'lucide-react';
 import React from 'react';
+import DatePicker from 'react-datepicker';
+import "react-datepicker/dist/react-datepicker.css";
 
 interface FormData {
     surgeryName: string;
@@ -27,6 +30,21 @@ const SurgicalHistory: React.FC<SurgicalHistoryProps> = ({
     errors,
     handleSubmit,
 }) => {
+    // Handle date change separately to ensure proper formatting
+    const handleDateChange = (date: Date | null) => {
+        const formattedDate = date ? date.toISOString().split('T')[0] : '';
+        
+        // Create a proper synthetic event
+        const syntheticEvent = {
+            target: {
+                name: 'surgeryDate',
+                value: formattedDate
+            }
+        } as React.ChangeEvent<HTMLInputElement>;
+        
+        handleChange(syntheticEvent);
+    };
+
     return (
         <div className="mt-4 flex flex-col lg:flex-row justify-between items-start gap-6 px-3 sm:px-4">
             {/* Left Text */}
@@ -85,14 +103,25 @@ const SurgicalHistory: React.FC<SurgicalHistoryProps> = ({
                     )}
                 </div>
 
-                <div className="w-full">
-                    <input
-                        type="date"
+                <div className="w-full relative">
+                    <DatePicker
+                        selected={formData.surgeryDate ? new Date(formData.surgeryDate) : null}
+                        onChange={handleDateChange}
                         name="surgeryDate"
-                        value={formData.surgeryDate}
-                        onChange={handleChange}
-                        className="border p-2 rounded w-full text-sm font-montserrat-600"
+                        placeholderText="Surgery Date"
+                        dateFormat="yyyy-MM-dd"
+                        maxDate={new Date()}
+                        showYearDropdown
+                        showMonthDropdown
+                        dropdownMode="select"
+                        yearDropdownItemNumber={100}
+                        scrollableYearDropdown
+                        className="border p-2 pr-10 rounded w-full text-sm font-montserrat-600 placeholder:text-gray-400"
+                        wrapperClassName="w-full"
+                        popperClassName="z-50"
+                        calendarClassName="border-2 border-gray-300 rounded-lg shadow-lg"
                     />
+                    <Calendar className="absolute right-3 top-3 h-5 w-5 text-[#333333] pointer-events-none" />
                     {errors.surgeryDate && (
                         <p className="text-red-500 text-sm mt-1">{errors.surgeryDate}</p>
                     )}
@@ -106,7 +135,6 @@ const SurgicalHistory: React.FC<SurgicalHistoryProps> = ({
                     >
                         Save
                     </button>
-
                 </div>
             </div>
         </div>

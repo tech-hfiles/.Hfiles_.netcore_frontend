@@ -23,7 +23,7 @@ const DynamicHeader: React.FC<HeaderProps> = ({ isMenuOpen, setIsMenuOpen }) => 
         {/* Logo */}
         <div className="flex items-center">
           <img
-            src="https://hfiles.in/wp-content/uploads/2022/11/hfiles.png"
+            src="/4bee03c0d8dd0050e8c60768d5eee76960b8b352.png"
             alt="HFiles Logo"
             className="h-10 sm:h-10 md:h-12 xl:h-15 w-auto object-contain"
           />

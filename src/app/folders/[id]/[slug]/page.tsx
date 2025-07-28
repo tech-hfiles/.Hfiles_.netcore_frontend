@@ -138,7 +138,6 @@ const FileReportCard: React.FC<{
         try {
             const currentUserId = await getUserId();
             if (!currentUserId) {
-                toast.error("Please log in to view members.");
                 return;
             }
 
