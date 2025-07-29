@@ -4,6 +4,9 @@
   background-image: linear-gradient(to right, #0331B5, #0B2B86);
 }
 
+.yellow {
+  background-color: #F9E380;
+}
 
 /* Loader container */
 .loader-overlay {
@@ -137,4 +140,25 @@ body.loading-indicator #global-loader {
 
 
 
+
+@layer utilities {
+  .scroll-ultrathin {
+    scrollbar-width: thin !important;
+    scrollbar-color: #9990 transparent !important;
+  }
+
+  .scroll-ultrathin::-webkit-scrollbar {
+    width: 2px !important;
+    height: 2px !important;
+  }
+
+  .scroll-ultrathin::-webkit-scrollbar-thumb {
+    background-color: #999 !important;
+    border-radius: 10px !important;
+  }
+
+  .scroll-ultrathin::-webkit-scrollbar-track {
+    background: transparent !important;
+  }
+}
 

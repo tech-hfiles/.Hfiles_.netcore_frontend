@@ -1,8 +1,8 @@
 
 
 export const API_Lab_Reports = "https://localhost:44358/api/";
-// export const API_NEW_Data = "https://localhost:7113/api/";
-export const API_NEW_Data = "https://test.testhfiles.in/api/";
+export const API_NEW_Data = "https://localhost:7113/api/";
+// export const API_NEW_Data = "https://test.testhfiles.in/api/";
 
 export const endpoints = {
    Lab_Reports: {

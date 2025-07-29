@@ -4,11 +4,19 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
+import DatePicker from 'react-datepicker';
+import "react-datepicker/dist/react-datepicker.css";
+import { Calendar } from 'lucide-react';
 import { BasicDetailsList, ListFlag, OTPSend, VerigyOTps, ListPincode, listCounty, AddProfile, OTpVerifyMember, OTpSubmitMember } from '../services/HfilesServiceApi';
 import { decryptData } from '../utils/webCrypto';
 import MasterHome from '../components/MasterHome';
 import { toast } from 'react-toastify';
-import { FaLessThan } from 'react-icons/fa';
+import { FaLessThan, FaUserCircle } from 'react-icons/fa';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEnvelope, faUser, faUserCircle } from '@fortawesome/free-regular-svg-icons';
+import { faCakeCandles, faCity, faDroplet, faMapMarkerAlt, faMapPin, faMars, faPhone, faXmark } from '@fortawesome/free-solid-svg-icons';
+import { X } from 'lucide-react';
+import OtpBoxes from '../components/OtpBoxes';
 
 interface FormData {
   firstName: string;
@@ -98,6 +106,9 @@ const AddBasicDetails: React.FC = () => {
   const [phoneOtpStep, setPhoneOtpStep] = useState<'verify' | 'otp'>('verify');
   const [phoneOtpLoading, setPhoneOtpLoading] = useState<boolean>(false);
   const [phoneVerifyLoading, setPhoneVerifyLoading] = useState<boolean>(false);
+  
+  // Add selectedDate state for DatePicker
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
   // Refs for OTP inputs to maintain focus
   const otpInputRef = useRef<HTMLInputElement>(null);
@@ -127,6 +138,17 @@ const AddBasicDetails: React.FC = () => {
       await handleVerifyPhoneOTP(values.otp);
     }
   });
+
+  // Add handleDateChange function
+  const handleDateChange = (date: Date | null) => {
+    setSelectedDate(date);
+    if (date) {
+      const formattedDate = date.toISOString().split('T')[0]; // YYYY-MM-DD format
+      formik.setFieldValue('dateOfBirth', formattedDate);
+    } else {
+      formik.setFieldValue('dateOfBirth', '');
+    }
+  };
 
   const formik = useFormik<FormData>({
     initialValues: {
@@ -307,9 +329,8 @@ const AddBasicDetails: React.FC = () => {
       formik.setFieldValue(name, processedValue);
       handlePincodeChange(processedValue);
       return;
-    } else if (name === 'emergencyContact' || name === 'contactNumber') {
-      processedValue = value.replace(/[^0-9]/g, '');
     }
+
     formik.setFieldValue(name, processedValue);
   }, [formik, handlePincodeChange]);
 
@@ -374,7 +395,6 @@ const AddBasicDetails: React.FC = () => {
       setUserEmail(currentEmail);
       setShowOTPModal(true);
       otpFormik.resetForm();
-      localStorage.setItem('isEmailVerified', 'true');
     } catch (error) {
       console.log(error, "error");
     } finally {
@@ -506,6 +526,19 @@ const AddBasicDetails: React.FC = () => {
     }
   };
 
+  // Helper function to parse DD-MM-YYYY format to Date object
+  const parseDateFromDDMMYYYY = (dateString: string): Date | null => {
+    if (!dateString) return null;
+    try {
+      const [day, month, year] = dateString.split('-');
+      if (!day || !month || !year) return null;
+      return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+    } catch (error) {
+      console.error('Error parsing date:', error);
+      return null;
+    }
+  };
+
   const handleVerifyOTP = async (otp: string) => {
     setVerifyLoading(true);
     try {
@@ -517,6 +550,8 @@ const AddBasicDetails: React.FC = () => {
       const response = await VerigyOTps(payload);
       toast.success(`${response.data.message}`);
       setShowOTPModal(false);
+      localStorage.setItem('isEmailVerified', 'true');
+      setIsEmailVerified(true);
       await ProfileDetailsList();
     } catch (error) {
       console.log(error, "error");
@@ -600,10 +635,17 @@ const AddBasicDetails: React.FC = () => {
         setOldPhoneNumber(originalPhone);
       }
 
+      // Parse and set the date for DatePicker
+      let parsedDate = null;
+      if (data.dob) {
+        parsedDate = parseDateFromDDMMYYYY(data.dob);
+        setSelectedDate(parsedDate);
+      }
+
       formik.setValues({
         firstName: data.firstName || '',
         lastName: data.lastName || '',
-        dateOfBirth: formatDateToDDMMYYYY(data.dob || ''),
+        dateOfBirth: parsedDate ? parsedDate.toISOString().split('T')[0] : '',
         contactNumber: data.phone || '',
         countryCode: formatCountryCode(data.countryCode),
         email: data.email || '',
@@ -729,62 +771,112 @@ const AddBasicDetails: React.FC = () => {
     fileInput?.click();
   };
 
+  // Fixed handler for main contact number
+  const contactNumberRef = useRef<HTMLInputElement>(null);
+  const emergencyContactRef = useRef<HTMLInputElement>(null);
+
+  // Fixed handler for main contact number
+  const handleContactNumberChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value, selectionStart } = e.target;
+    const numericValue = value.replace(/[^0-9]/g, '').slice(0, 10);
+
+    // Calculate cursor position for numeric-only input
+    const newCursorPosition = Math.min(selectionStart || 0, numericValue.length);
+
+    formik.setFieldValue('contactNumber', numericValue);
+
+    // Use requestAnimationFrame for better timing
+    requestAnimationFrame(() => {
+      if (contactNumberRef.current) {
+        contactNumberRef.current.focus();
+        contactNumberRef.current.setSelectionRange(newCursorPosition, newCursorPosition);
+      }
+    });
+  }, [formik]);
+
+  // Fixed handler for emergency contact number
+  const handleEmergencyContactChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value, selectionStart } = e.target;
+    const numericValue = value.replace(/[^0-9]/g, '').slice(0, 10);
+
+    // Calculate cursor position for numeric-only input
+    const newCursorPosition = Math.min(selectionStart || 0, numericValue.length);
+
+    formik.setFieldValue('emergencyContact', numericValue);
+
+    // Use requestAnimationFrame for better timing
+    requestAnimationFrame(() => {
+      if (emergencyContactRef.current) {
+        emergencyContactRef.current.focus();
+        emergencyContactRef.current.setSelectionRange(newCursorPosition, newCursorPosition);
+      }
+    });
+  }, [formik]);
+
+  const shouldShowEmailBanner = !isEmailVerified && (!userEmail?.isEmailVerified);
+
   const ContactNumberField: React.FC = () => {
     return (
       <div className="relative mb-4">
-        <div className="relative">
-          <i className="fa-solid fa-phone absolute left-3 top-1/2 transform -translate-y-1/2 text-yellow-500 z-10 text-base sm:text-lg"></i>
-          <div className={`bg-white rounded-[7px] border ${formik.touched.contactNumber && formik.errors.contactNumber ? 'border-red-500' :
-            formik.touched.countryCode && formik.errors.countryCode ? 'border-red-500' : 'border-[#333]'
-            } overflow-hidden focus-within:ring-2 focus-within:ring-blue-400 focus-within:border-transparent transition-all duration-200`}>
+        <div className="absolute inset-y-0 left-0 pl-3 flex items-center">
+          <div className="w-6 h-6 rounded-full flex items-center justify-center">
+            <FontAwesomeIcon icon={faPhone} className="text-black text-lg" />
+          </div>
+        </div>
+        <div className={`pl-5 bg-white rounded-[7px] border ${formik.touched.contactNumber && formik.errors.contactNumber ? 'border-red-500' :
+          formik.touched.countryCode && formik.errors.countryCode ? 'border-red-500' : 'border-[#333]'
+          } overflow-hidden focus-within:ring-2 focus-within:ring-blue-400 focus-within:border-transparent transition-all duration-200`}>
 
-            <div className="flex items-center">
-              <select
-                name="countryCode"
-                aria-label="Country Code"
-                value={formik.values.countryCode}
-                onChange={handleRegularChange}
-                onBlur={formik.handleBlur}
-                className="border-0 bg-transparent py-2 sm:py-3 pl-6 sm:pl-7 font-montserrat-500 text-[#0331b5] placeholder-[#0331b5] pr-1 sm:pr-2 text-xs sm:text-sm focus:ring-0 focus:outline-none  font-medium"
-                style={{ minWidth: '90px', maxWidth: '120px' }}
-              >
-                <option value="">Country</option>
-                {Array.isArray(listCountyCode) &&
-                  listCountyCode.map((country, index) => (
-                    <option
-                      key={index}
-                      value={JSON.stringify({
-                        country: country.country,
-                        dialingCode: country.dialingCode,
-                      })}
-                    >
-                      {country.country} {country.dialingCode}
-                    </option>
-                  ))}
-              </select>
+          <div className="flex items-center">
+            <select
+              name="countryCode"
+              aria-label="Country Code"
+              value={formik.values.countryCode}
+              onChange={handleRegularChange}
+              onBlur={formik.handleBlur}
+              className="border-0 bg-transparent py-2 sm:py-3 pl-6 sm:pl-7 font-montserrat-500 text-[#0331b5] placeholder-[#0331b5] pr-1 sm:pr-2 text-xs sm:text-sm focus:ring-0 focus:outline-none  font-medium"
+              style={{ minWidth: '90px', maxWidth: '120px' }}
+            >
+              <option value="">Country</option>
+              {Array.isArray(listCountyCode) &&
+                listCountyCode.map((country, index) => (
+                  <option
+                    key={index}
+                    value={JSON.stringify({
+                      country: country.country,
+                      dialingCode: country.dialingCode,
+                    })}
+                  >
+                    {country.country} {country.dialingCode}
+                  </option>
+                ))}
+            </select>
 
-              <div className="h-4 sm:h-6 w-px bg-gray-300 mx-1"></div>
-              <input
-                type="text"
-                name="contactNumber"
-                placeholder="Contact Number"
-                value={formik.values.contactNumber}
-                onChange={handleCustomChange}
-                onBlur={formik.handleBlur}
-                className="flex-1 border-0 py-2 sm:py-3 pl-6 sm:pl-3 sm:pr-0 bg-transparent font-montserrat-400 focus:ring-0 focus:outline-none text-gray-700 placeholder-gray-400 text-xs sm:text-sm"
-                maxLength={10}
+            <div className="h-4 sm:h-6 w-px bg-gray-300 mx-1"></div>
+            <input
+              ref={contactNumberRef}
+              type="tel"
+              name="contactNumber"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              placeholder="Contact Number"
+              value={formik.values.contactNumber}
+              onChange={handleContactNumberChange}
+              onBlur={formik.handleBlur}
+              autoComplete="tel"
+              className="flex-1 border-0 py-2 sm:py-3 pl-6 sm:pl-3 sm:pr-0 bg-transparent font-montserrat-400 focus:ring-0 focus:outline-none text-gray-700 placeholder-gray-400 text-xs sm:text-sm"
+              maxLength={10}
+            />
+
+            {mainContactFlagUrl && (
+              <img
+                src={mainContactFlagUrl.flagUrl}
+                alt="Country flag"
+                width={20}
+                height={14}
+                className="mr-2 sm:mr-4"
               />
-
-              {mainContactFlagUrl && (
-                <img
-                  src={mainContactFlagUrl.flagUrl}
-                  alt="Country flag"
-                  width={20}
-                  height={14}
-                  className="mr-2 sm:mr-4"
-                />
-              )}
-            </div>
+            )}
           </div>
         </div>
         {formik.touched.countryCode && formik.errors.countryCode && (
@@ -800,150 +892,166 @@ const AddBasicDetails: React.FC = () => {
   const EmergencyContactField: React.FC = () => {
     return (
       <div className="relative mb-4">
-        <div className="relative">
-          <i className="fa-solid fa-phone absolute left-3 top-1/2 transform -translate-y-1/2 text-yellow-500 z-10 text-base sm:text-lg"></i>
-          <div className={`bg-white rounded-[7px] border overflow-hidden
-            focus-within:ring-2 focus-within:ring-blue-400 focus-within:border-transparent transition-all duration-200`}>
-
-            <div className="flex items-center">
-              <select
-                name="emergencyCountryCode"
-                aria-label="Emergency Country Code"
-                value={formik.values.emergencyCountryCode}
-                onChange={handleRegularChange}
-                onBlur={formik.handleBlur}
-                className="border-0 bg-transparent py-2 sm:py-3 pl-6 sm:pl-3 pr-1 sm:pr-0 font-montserrat-500  text-[#0331b5] placeholder-[#0331b5]  text-[12px]  focus:ring-0 focus:outline-none "
-                style={{ minWidth: '90px', maxWidth: '120px' }}
-              >
-                <option value="">Country</option>
-                {Array.isArray(listCountyCode) &&
-                  listCountyCode.map((country, index) => (
-                    <option
-                      key={index}
-                      value={JSON.stringify({
-                        country: country.country,
-                        dialingCode: country.dialingCode,
-                      })}
-                    >
-                      {country.country} {country.dialingCode}
-                    </option>
-                  ))}
-              </select>
-
-              <div className="h-4 sm:h-6 w-px bg-gray-300 mx-1"></div>
-
-              <input
-                type="text"
-                name="emergencyContact"
-                placeholder="Emergency Contact Number"
-                value={formik.values.emergencyContact}
-                onChange={handleCustomChange}
-                onBlur={formik.handleBlur}
-                className="flex-1 border-0 py-2 sm:py-3 px-2 bg-transparent focus:ring-0 focus:outline-none rounded-[7px] font-montserrat-400  text-[#0331b5]  placeholder-gray-500 text-[13px] sm:text-sm"
-              />
-
-              {emergencyContactFlagUrl && (
-                <img
-                  src={emergencyContactFlagUrl.flagUrl}
-                  alt="Country flag"
-                  width={20}
-                  height={14}
-                  className="mr-2 sm:mr-4"
-                />
-              )}
-            </div>
+        <div className="absolute inset-y-0 left-0 pl-3 flex items-center">
+          <div className="w-6 h-6 rounded-full flex items-center justify-center">
+            <FontAwesomeIcon icon={faPhone} className="text-black text-lg" />
           </div>
         </div>
+        <div className={`pl-7 bg-white rounded-[7px] border overflow-hidden
+          focus-within:ring-2 focus-within:ring-blue-400 focus-within:border-transparent transition-all duration-200`}>
+
+          <div className="flex items-center">
+            <select
+              name="emergencyCountryCode"
+              aria-label="Emergency Country Code"
+              value={formik.values.emergencyCountryCode}
+              onChange={handleRegularChange}
+              onBlur={formik.handleBlur}
+              className="border-0 bg-transparent py-2 sm:py-3 pl-6 sm:pl-3 pr-1 sm:pr-0 font-montserrat-500  text-[#0331b5] placeholder-[#0331b5]  text-[12px]  focus:ring-0 focus:outline-none "
+              style={{ minWidth: '90px', maxWidth: '120px' }}
+            >
+              <option value="">Country</option>
+              {Array.isArray(listCountyCode) &&
+                listCountyCode.map((country, index) => (
+                  <option
+                    key={index}
+                    value={JSON.stringify({
+                      country: country.country,
+                      dialingCode: country.dialingCode,
+                    })}
+                  >
+                    {country.country} {country.dialingCode}
+                  </option>
+                ))}
+            </select>
+
+            <div className="h-4 sm:h-6 w-px bg-gray-300 mx-1"></div>
+
+            <input
+              ref={emergencyContactRef}
+              type="tel"
+              name="emergencyContact"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              placeholder="Emergency Contact Number"
+              value={formik.values.emergencyContact}
+              onChange={handleEmergencyContactChange}
+              onBlur={formik.handleBlur}
+              autoComplete="tel"
+              className="flex-1 border-0 py-2 sm:py-3 px-2 bg-transparent focus:ring-0 focus:outline-none rounded-[7px] font-montserrat-400 text-[#0331b5] placeholder-gray-500 text-[13px] sm:text-sm"
+              maxLength={10}
+            />
+
+            {emergencyContactFlagUrl && (
+              <img
+                src={emergencyContactFlagUrl.flagUrl}
+                alt="Country flag"
+                width={20}
+                height={14}
+                className="mr-2 sm:mr-4"
+              />
+            )}
+          </div>
+        </div>
+        {formik.touched.emergencyCountryCode && formik.errors.emergencyCountryCode && (
+          <span className="block text-red-500 text-xs mt-1 ml-4">{formik.errors.emergencyCountryCode}</span>
+        )}
+        {formik.touched.emergencyContact && formik.errors.emergencyContact && (
+          <span className="block text-red-500 text-xs mt-1 ml-4">{formik.errors.emergencyContact}</span>
+        )}
       </div>
     );
   };
+
+  // Define input classes for DatePicker styling
+  const inputClasses = `w-full pl-10 sm:pl-12 pr-10 py-2 sm:py-3 border ${
+    formik.touched.dateOfBirth && formik.errors.dateOfBirth ? 'border-red-500' : 'border-black'
+  } rounded-[7px] font-montserrat-400 bg-white text-[#333333] placeholder-[#333333] focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 text-[16px] sm:text-lg`;
 
   const OTPModal: React.FC = () => {
     if (!showOTPModal) return null;
 
     return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 px-4 sm:px-6">
-        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md sm:max-w-lg mx-auto">
-          <div className="p-4 sm:p-6">
-            <div className="text-center mb-4 sm:mb-6">
-              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
-                <i className="fa-solid fa-envelope text-blue-600 text-xl sm:text-2xl"></i>
-              </div>
-              <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-2">Verify Your Email</h2>
-              <p className="text-gray-600 text-sm sm:text-base">
-                We've sent a 6-digit OTP to your email address
-              </p>
-            </div>
+      <div className="fixed inset-0 bg-black/30 backdrop-blur-[2px] flex items-center justify-center z-50 px-4 sm:px-6">
+        <div className="relative bg-white rounded-md shadow-2xl w-full max-w-2xl sm:max-w-2xl mx-auto flex flex-col sm:flex-row">
 
-            <form onSubmit={otpFormik.handleSubmit}>
-              <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-medium mb-2">Email Address</label>
-                <div className="relative">
-                  <i className="fa-solid fa-envelope absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                  <input
-                    type="email"
-                    value={userEmail}
-                    readOnly
-                    className="w-full pl-10 sm:pl-12 pr-4 py-2 sm:py-3 border border-gray-300 rounded-full bg-gray-50 text-gray-700 text-xs sm:text-sm focus:outline-none"
-                  />
+          {/* Close Button */}
+          <button
+            onClick={() => setShowOTPModal(false)}
+            className="absolute top-3 right-3 text-gray-500 hover:text-black p-1 rounded-full focus:outline-none z-10"
+            aria-label="Close"
+          >
+            <FontAwesomeIcon icon={faXmark} className="text-xl sm:text-2xl" />
+          </button>
+
+          {/* IMAGE SECTION */}
+          <div className="w-full sm:w-auto hidden sm:block">
+            <img
+              src="/6ec158356fc7fb83b1698c0d08275e5e98873f59.png"
+              alt="Samantha"
+              className="h-full w-[420px] object-cover rounded-t-2xl sm:rounded-l-2xl sm:rounded-tr-none"
+            />
+          </div>
+
+          {/* FORM SECTION */}
+          <div className="p-4 sm:p-6 w-full mt-2">
+            <p className='text-black font-bold text-lg font-poppins-500'>
+              Please verify your email before requesting an OTP.
+            </p>
+            <div className='mt-11'>
+              <form onSubmit={otpFormik.handleSubmit}>
+                {/* Email input */}
+                <div className="mb-4 mt-5">
+                  <div className="relative">
+                    <i className="fa-solid fa-envelope absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                    <input
+                      type="email"
+                      value={userEmail}
+                      readOnly
+                      className="w-full pl-10 sm:pl-12 pr-4 py-2 sm:py-3 border border-black rounded-lg bg-gray-50 text-gray-700 text-xs sm:text-sm focus:outline-none"
+                    />
+                  </div>
                 </div>
-              </div>
 
-              <div className="mb-4 sm:mb-6">
-                <label className="block text-gray-700 text-sm font-medium mb-2">Enter OTP</label>
-                <div className="relative">
-                  <i className="fa-solid fa-key absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                  <input
-                    ref={otpInputRef}
-                    type="text"
-                    name="otp"
-                    inputMode="numeric"
-                    autoComplete="one-time-code"
+                {/* OTP input */}
+                <div className="mb-4 sm:mb-6">
+                  <OtpBoxes
                     value={otpFormik.values.otp}
-                    onChange={handleOTPChange}
-                    onBlur={otpFormik.handleBlur}
-                    maxLength={6}
-                    className={`w-full pl-10 sm:pl-12 pr-4 py-2 sm:py-3 border ${otpFormik.touched.otp && otpFormik.errors.otp ? 'border-red-500' : 'border-black'}  rounded-[7px] font-montserrat-400 bg-white text-[#333333] placeholder-[#333333] focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 text-center text-sm sm:text-lg tracking-wider sm:tracking-widest`}
-                    placeholder="000000"
+                    onChange={(val) => otpFormik.setFieldValue('otp', val)}
                   />
+                  {otpFormik.touched.otp && otpFormik.errors.otp && (
+                    <span className="block text-red-500 text-xs mt-1 ml-4">{otpFormik.errors.otp}</span>
+                  )}
                 </div>
-                {otpFormik.touched.otp && otpFormik.errors.otp && (
-                  <span className="block text-red-500 text-xs mt-1 ml-4">{otpFormik.errors.otp}</span>
-                )}
-              </div>
 
-              <div className="flex flex-col space-y-3">
-                <button
-                  type="submit"
-                  disabled={verifyLoading || !otpFormik.isValid}
-                  className={`w-full bg-blue-600 hover:bg-blue-700 cursor-pointer text-white font-semibold py-2 sm:py-3 px-6 rounded-full transition-all duration-300 text-sm sm:text-base ${verifyLoading || !otpFormik.isValid ? 'opacity-50 cursor-not-allowed' : ''}`}
-                >
-                  {verifyLoading ? 'Verifying...' : 'Verify OTP'}
-                </button>
-
-                <div className="flex flex-col sm:flex-row sm:space-x-3 space-y-3 sm:space-y-0">
+                <div className='flex justify-end mb-2'>
                   <button
                     type="button"
                     onClick={handleEmailVerificationClick}
                     disabled={otpLoading}
-                    className={`flex-1 bg-gray-100 hover:bg-gray-200 cursor-pointer text-gray-700 font-medium py-2 px-4 rounded-full transition-all duration-300 text-xs sm:text-sm ${otpLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    className={` cursor-pointer border-black text-blue-800 font-medium  rounded-lg transition-all duration-300 text-xs sm:text-sm ${otpLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
                     {otpLoading ? 'Sending...' : 'Resend OTP'}
                   </button>
+                </div>
 
+                {/* Buttons */}
+                <div className="flex flex-col space-y-3">
                   <button
-                    type="button"
-                    onClick={() => setShowOTPModal(false)}
-                    className="flex-1 bg-gray-100 hover:bg-gray-200 cursor-pointer text-gray-700 font-medium py-2 px-4 rounded-full transition-all duration-300 text-xs sm:text-sm"
+                    type="submit"
+                    disabled={verifyLoading || !otpFormik.isValid}
+                    className={`w-full yellow cursor-pointer text-black font-semibold py-2 sm:py-3 px-6 rounded-lg transition-all duration-300 text-sm sm:text-base ${verifyLoading || !otpFormik.isValid ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
-                    Cancel
+                    {verifyLoading ? 'Verifying...' : 'Verify OTP'}
                   </button>
                 </div>
-              </div>
-            </form>
+              </form>
+            </div>
           </div>
         </div>
       </div>
+
+
     );
   };
 
@@ -951,39 +1059,47 @@ const AddBasicDetails: React.FC = () => {
     if (!showOTPPhoneModal) return null;
 
     return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 px-4 sm:px-6">
-        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md sm:max-w-lg mx-auto">
-          <div className="p-4 sm:p-6">
-            <div className="text-center mb-4 sm:mb-6">
-              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
-                <i className="fa-solid fa-phone text-blue-600 text-xl sm:text-2xl"></i>
-              </div>
-              <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-2">
-                {phoneOtpStep === 'verify' ? 'Verify Your Phone' : 'Enter OTP'}
-              </h2>
-              <p className="text-gray-600 text-sm sm:text-base">
-                {phoneOtpStep === 'verify'
-                  ? 'Confirm your phone number to receive OTP'
-                  : 'Enter the 6-digit OTP sent to your phone'
-                }
-              </p>
+<div className="fixed inset-0 bg-black/30 backdrop-blur-[2px] flex items-center justify-center z-50 px-4 sm:px-6">
+        <div className="bg-white rounded-md shadow-2xl w-full max-w-md sm:max-w-lg mx-auto">
+          <div className="relative bg-white rounded-md shadow-2xl w-full max-w-2xl sm:max-w-2xl mx-auto flex flex-col sm:flex-row">
+
+            {/* Close Button */}
+            <div>
+              
+            <button
+              onClick={() => setShowOTPPhoneModal(false)}
+              className="absolute top-3 right-3 text-gray-500 hover:text-black p-1 rounded-full focus:outline-none z-10"
+              aria-label="Close"
+            >
+              <FontAwesomeIcon icon={faXmark} className="text-xl sm:text-2xl" />
+            </button>
             </div>
 
+            {/* IMAGE SECTION */}
+            <div className="w-full sm:w-auto hidden sm:block">
+              <img
+                src="/6ec158356fc7fb83b1698c0d08275e5e98873f59.png"
+                alt="Samantha"
+                className="h-full w-[420px] object-cover rounded-t-2xl sm:rounded-l-2xl sm:rounded-tr-none"
+              />
+            </div>
             {phoneOtpStep === 'verify' ? (
-              <div>
-                <div className="mb-4">
-                  <label className="block text-gray-700 text-sm font-medium mb-2">Current Phone</label>
-                  <div className="flex items-center bg-gray-50 rounded-full p-2 sm:p-3">
-                    <span className="text-gray-600 text-xs sm:text-sm">
+              
+              <div className='p-4 mt-5'>
+                <div className="mt-4">
+                    <p className='text-black font-bold text-lg font-poppins-500'>
+                      Please verify your phone number.
+                    </p>
+                  <div className="flex items-center bg-white text-black rounded-lg border border-black p-2 sm:p-3 mt-3">
+                    <span className="text-blue-800 text-xs sm:text-sm">
                       {oldCountryCode} {oldPhoneNumber}
                     </span>
                   </div>
                 </div>
 
-                <div className="mb-4 sm:mb-6">
-                  <label className="block text-gray-700 text-sm font-medium mb-2">New Phone Number</label>
-                  <div className={`bg-white rounded-full border ${formik.touched.contactNumber && formik.errors.contactNumber ? 'border-red-500' :
-                    formik.touched.countryCode && formik.errors.countryCode ? 'border-red-500' : 'border-gray-300'
+                <div className="mb-4 sm:mb-6 mt-3">
+                  <div className={`bg-white rounded-lg border border-black ${formik.touched.contactNumber && formik.errors.contactNumber ? 'border-red-500' :
+                    formik.touched.countryCode && formik.errors.countryCode ? 'border-red-500' : 'border-black'
                     } overflow-hidden focus-within:ring-2 focus-within:ring-blue-400 focus-within:border-transparent transition-all duration-200`}>
                     <div className="flex items-center">
                       <select
@@ -1037,42 +1153,32 @@ const AddBasicDetails: React.FC = () => {
                     type="button"
                     onClick={handleSendPhoneOTP}
                     disabled={phoneOtpLoading || !formik.values.contactNumber || !formik.values.countryCode}
-                    className={`w-full bg-blue-600 hover:bg-blue-700 cursor-pointer text-white font-semibold py-2 sm:py-3 px-6 rounded-full transition-all duration-300 text-sm sm:text-base ${phoneOtpLoading || !formik.values.contactNumber || !formik.values.countryCode
+                    className={`w-full primary cursor-pointer text-white font-semibold py-2 sm:py-3 px-6 rounded-lg transition-all duration-300 text-sm sm:text-base ${phoneOtpLoading || !formik.values.contactNumber || !formik.values.countryCode
                       ? 'opacity-50 cursor-not-allowed'
                       : ''
                       }`}
                   >
                     {phoneOtpLoading ? 'Sending OTP...' : 'Send OTP'}
                   </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setShowOTPPhoneModal(false)}
-                    className="w-full bg-gray-100 hover:bg-gray-200 cursor-pointer text-gray-700 font-medium py-2 px-4 rounded-full transition-all duration-300 text-xs sm:text-sm"
-                  >
-                    Cancel
-                  </button>
                 </div>
               </div>
             ) : (
+              <div className='p-4 mt-4 relative w-full max-w-2xl sm:max-w-2xl mx-auto flex flex-col sm:flex-row'>
               <form onSubmit={phoneOtpFormik.handleSubmit}>
-                <div className="mb-4">
-                  <label className="block text-gray-700 text-sm font-medium mb-2">Phone Number</label>
-                  <div className="relative">
-                    <i className="fa-solid fa-phone absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                  <p className='text-black font-bold text-lg font-poppins-500'>
+                    Please verify your Phone number.
+                  </p>
+                <div className="mb-2 mt-2">
                     <input
                       type="text"
                       value={`${formik.values.countryCode ? JSON.parse(formik.values.countryCode).dialingCode : ''} ${formik.values.contactNumber}`}
                       readOnly
-                      className="w-full pl-10 sm:pl-12 pr-4 py-2 sm:py-3 border border-gray-300 rounded-full bg-gray-50 text-gray-700 text-xs sm:text-sm focus:outline-none"
+                      className="w-full pl-10 sm:pl-12 pr-4 py-2 sm:py-3 border border-black rounded-lg bg-white text-blue-800 text-xs sm:text-sm focus:outline-none"
                     />
-                  </div>
                 </div>
 
-                <div className="mb-4 sm:mb-6">
-                  <label className="block text-gray-700 text-sm font-medium mb-2">Enter OTP</label>
+                <div className="mb-2 sm:mb-6">
                   <div className="relative">
-                    <i className="fa-solid fa-key absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
                     <input
                       ref={phoneOtpInputRef}
                       type="text"
@@ -1083,9 +1189,9 @@ const AddBasicDetails: React.FC = () => {
                       onChange={handlePhoneOTPChange}
                       onBlur={phoneOtpFormik.handleBlur}
                       maxLength={6}
-                      className={`w-full pl-10 sm:pl-12 pr-4 py-2 sm:py-3 border ${phoneOtpFormik.touched.otp && phoneOtpFormik.errors.otp ? 'border-red-500' : 'border-gray-300'
+                      className={`w-full pl-10 sm:pl-12 pr-4 py-2 sm:py-3 border ${phoneOtpFormik.touched.otp && phoneOtpFormik.errors.otp ? 'border-red-500' : 'border-black'
 
-                        } rounded-[7px] font-montserrat-400 bg-white text-[#333333] placeholder-[#333333] focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 text-center text-sm sm:text-lg tracking-wider sm:tracking-widest`}
+                        } rounded-[7px] font-montserrat-400 bg-white text-[#333333] placeholder-[#333333] focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 text-start text-sm sm:text-lg tracking-wider sm:tracking-widest`}
                       placeholder="000000"
                     />
                   </div>
@@ -1093,49 +1199,31 @@ const AddBasicDetails: React.FC = () => {
                     <span className="block text-red-500 text-xs mt-1 ml-4">{phoneOtpFormik.errors.otp}</span>
                   )}
                 </div>
+                <div className='flex justify-end mb-2'>
+
+                    <button
+                      type="button"
+                      onClick={handleSendPhoneOTP}
+                      disabled={phoneOtpLoading}
+                      className={` text-blue-800 font-medium  transition-all duration-300 text-xs sm:text-sm ${phoneOtpLoading ? 'opacity-50 cursor-not-allowed' : ''
+                        }`}
+                    >
+                      {phoneOtpLoading ? 'Sending...' : 'Resend OTP'}
+                    </button>
+                </div>
 
                 <div className="flex flex-col space-y-3">
                   <button
                     type="submit"
                     disabled={phoneVerifyLoading || !phoneOtpFormik.isValid}
-                    className={`w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 sm:py-3 px-6 rounded-full transition-all duration-300 text-sm sm:text-base ${phoneVerifyLoading || !phoneOtpFormik.isValid ? 'opacity-50 cursor-not-allowed' : ''
+                    className={`w-full primary cursor-pointer text-white font-semibold py-2 sm:py-3 px-6 rounded-lg transition-all duration-300 text-sm sm:text-base ${phoneVerifyLoading || !phoneOtpFormik.isValid ? 'opacity-50 cursor-not-allowed' : ''
                       }`}
                   >
                     {phoneVerifyLoading ? 'Verifying...' : 'Verify OTP'}
                   </button>
-
-                  <div className="flex flex-col sm:flex-row sm:space-x-3 space-y-3 sm:space-y-0">
-                    <button
-                      type="button"
-                      onClick={handleSendPhoneOTP}
-                      disabled={phoneOtpLoading}
-                      className={`flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2 px-4 rounded-full transition-all duration-300 text-xs sm:text-sm ${phoneOtpLoading ? 'opacity-50 cursor-not-allowed' : ''
-                        }`}
-                    >
-                      {phoneOtpLoading ? 'Sending...' : 'Resend OTP'}
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setPhoneOtpStep('verify');
-                        phoneOtpFormik.resetForm();
-                      }}
-                      className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2 px-4 rounded-full transition-all duration-300 text-xs sm:text-sm"
-                    >
-                      Back
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => setShowOTPPhoneModal(false)}
-                      className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2 px-4 rounded-full transition-all duration-300 text-xs sm:text-sm"
-                    >
-                      Cancel
-                    </button>
-                  </div>
                 </div>
               </form>
+              </div>
             )}
           </div>
         </div>
@@ -1156,7 +1244,7 @@ const AddBasicDetails: React.FC = () => {
           </button>
         </div>
 
-        {!isEmailVerified && !userEmail?.isEmailVerified && (
+        {shouldShowEmailBanner && (
           <div className="w-full flex justify-end">
             <div className="w-full sm:w-1/2 bg-red-700 text-white flex flex-col sm:flex-row justify-between items-center p-4 rounded-md mx-4 sm:mx-0 mb-4 shadow-md">
               {/* Message */}
@@ -1178,13 +1266,22 @@ const AddBasicDetails: React.FC = () => {
         )}
 
         {!isPhoneVerified && (
-          <div
-            className='bg-red-300 text-center cursor-pointer hover:bg-red-400 transition-colors duration-200 py-2 mx-4 sm:mx-6'
-            onClick={handlePhoneVerificationClick}
-          >
-            <p className="text-red-800 font-medium text-sm sm:text-base">
-              {otpLoading ? 'Sending OTP...' : 'Please Verify Phone - Click Here'}
-            </p>
+          <div className="w-full flex justify-end">
+            <div className="w-full sm:w-1/2 bg-red-700 text-white flex flex-col sm:flex-row justify-between items-center p-4 rounded-md mx-4 sm:mx-0 mb-4 shadow-md">
+              {/* Message */}
+              <div className="text-center sm:text-left mb-2 sm:mb-0">
+                <p className="font-semibold text-sm sm:text-base">Your phone number isn't verified yet.</p>
+                <p className="text-sm sm:text-base">Please verify to access all features.</p>
+              </div>
+
+              {/* Button */}
+              <button
+                onClick={handlePhoneVerificationClick}
+                className="bg-yellow-400 hover:bg-yellow-500 text-black font-semibold px-4 py-2 rounded-md text-sm sm:text-base mt-2 sm:mt-0 sm:ml-4 transition-colors duration-200"
+              >
+                {otpLoading ? 'Sending OTP...' : 'Verify Now'}
+              </button>
+            </div>
           </div>
         )}
 
@@ -1226,7 +1323,7 @@ const AddBasicDetails: React.FC = () => {
               <input
                 id="profileUpload"
                 type="file"
-                accept=".png,.jpg,.jpeg"
+                accept="image/png, image/jpeg , image/jpg , image/webp"
                 onChange={handleImageChange}
                 className="hidden"
               />
@@ -1248,60 +1345,87 @@ const AddBasicDetails: React.FC = () => {
                   <div className="space-y-4">
 
                     <div className="relative mb-4">
-                      <div className="relative">
-                        <i className="fa-solid fa-user absolute left-3 top-1/2 transform -translate-y-1/2 text-yellow-500 z-10 text-base sm:text-lg"></i>
-                        <input
-                          type="text"
-                          name="firstName"
-                          value={formik.values.firstName}
-                          onChange={handleCustomChange}
-                          onBlur={formik.handleBlur}
-                          className={`w-full pl-10 sm:pl-12 pr-4 py-2 sm:py-3 border ${formik.touched.firstName && formik.errors.firstName ? 'border-red-500' : 'border-black'} 
-                                      rounded-[7px] font-montserrat-400 bg-white text-[#333333] placeholder-[#333333] focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent 
-                                      transition-all duration-200 text-[16px] sm:text-lg`}
-                          placeholder="Rahul"
-                          required
-                        />
+                      {/* Circle icon container */}
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center">
+                        <div className="w-6 h-6 rounded-full bg-gray-800 flex items-center justify-center">
+                          <FontAwesomeIcon icon={faUser} className="text-white text-xs" />
+                        </div>
                       </div>
+
+                      {/* Input with left padding */}
+                      <input
+                        type="text"
+                        name="firstName"
+                        value={formik.values.firstName}
+                        onChange={handleCustomChange}
+                        onBlur={formik.handleBlur}
+                        className={`w-full pl-10 sm:pl-12 pr-4 py-2 sm:py-3 border ${formik.touched.firstName && formik.errors.firstName
+                          ? 'border-red-500'
+                          : 'border-black'
+                          } rounded-[10px] font-montserrat-400 bg-white text-[#333333] placeholder-gray-500 
+        focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-200 text-[16px]`}
+                        placeholder="Palak"
+                        required
+                      />
+
+                      {/* Error message */}
                       {formik.touched.firstName && formik.errors.firstName && (
-                        <span className="block text-red-500 text-xs mt-1 ml-4">{formik.errors.firstName}</span>
+                        <span className="block text-red-500 text-xs mt-1 ml-4">
+                          {formik.errors.firstName}
+                        </span>
                       )}
                     </div>
 
                     <div className="relative mb-4">
-                      <div className="relative">
-                        <i className="fa-solid fa-user absolute left-3 top-1/2 transform -translate-y-1/2 text-yellow-500 z-10 text-base sm:text-lg"></i>
-                        <input
-                          type="text"
-                          name="lastName"
-                          value={formik.values.lastName}
-                          onChange={handleCustomChange}
-                          onBlur={formik.handleBlur}
-                          className={`w-full pl-10 sm:pl-12 pr-4 py-2 sm:py-3 border ${formik.touched.lastName && formik.errors.lastName ? 'border-red-500' : 'border-black'}  rounded-[7px] font-montserrat-400 bg-white text-[#333333] placeholder-[#333333] focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 text-[16px] sm:text-lg`}
-                          placeholder="sinha"
-                          required
-                        />
+                      {/* Circle icon container */}
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center">
+                        <div className="w-6 h-6 rounded-full bg-gray-800 flex items-center justify-center">
+                          <FontAwesomeIcon icon={faUser} className="text-white text-xs" />
+                        </div>
                       </div>
+                      <input
+                        type="text"
+                        name="lastName"
+                        value={formik.values.lastName}
+                        onChange={handleCustomChange}
+                        onBlur={formik.handleBlur}
+                        className={`w-full pl-10 sm:pl-12 pr-4 py-2 sm:py-3 border ${formik.touched.lastName && formik.errors.lastName ? 'border-red-500' : 'border-black'}  rounded-[7px] font-montserrat-400 bg-white text-[#333333] placeholder-[#333333] focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 text-[16px] sm:text-lg`}
+                        placeholder="sinha"
+                        required
+                      />
                       {formik.touched.lastName && formik.errors.lastName && (
                         <span className="block text-red-500 text-xs mt-1 ml-4">{formik.errors.lastName}</span>
                       )}
                     </div>
 
+                    {/* Updated DatePicker Section */}
                     <div className="relative mb-4">
-                      <div className="relative">
-                        <i className="fa-solid fa-calendar-days absolute left-3 top-1/2 transform -translate-y-1/2 text-yellow-500 z-10 text-base sm:text-lg"></i>
-                        <input
-                          type="date"
-                          name="dateOfBirth"
-                          value={formik.values.dateOfBirth}
-                          onChange={handleRegularChange}
-                          onBlur={formik.handleBlur}
-                          className={`w-full pl-10 sm:pl-12 pr-4 py-2 sm:py-3 border ${formik.touched.dateOfBirth && formik.errors.dateOfBirth ? 'border-red-500' : 'border-black'}  rounded-[7px] font-montserrat-400 bg-white text-[#333333] placeholder-[#333333] focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 text-[16px] sm:text-lg`}
-                          placeholder="15-12-1997"
-                          required
-                          max={new Date().toISOString().split('T')[0]}
-                        />
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center z-10">
+                        <div className="w-6 h-6 rounded-full bg-gray-800 flex items-center justify-center">
+                          <FontAwesomeIcon icon={faCakeCandles} className="text-white text-xs" />
+                        </div>
                       </div>
+                      
+                      <DatePicker
+                        selected={selectedDate}
+                        onChange={handleDateChange}
+                        onBlur={formik.handleBlur}
+                        placeholderText="Date of Birth"
+                        dateFormat="dd-MM-yyyy"
+                        maxDate={new Date()}
+                        showYearDropdown
+                        showMonthDropdown
+                        dropdownMode="select"
+                        yearDropdownItemNumber={100}
+                        scrollableYearDropdown
+                        className={inputClasses}
+                        wrapperClassName="w-full"
+                        popperClassName="z-50"
+                        calendarClassName="border-2 border-gray-300 rounded-lg shadow-lg"
+                      />
+                      
+                      <Calendar className="absolute right-3 top-3 h-5 w-5 text-[#333333] pointer-events-none" />
+                      
                       {formik.touched.dateOfBirth && formik.errors.dateOfBirth && (
                         <span className="block text-red-500 text-xs mt-1 ml-4">{formik.errors.dateOfBirth}</span>
                       )}
@@ -1310,23 +1434,24 @@ const AddBasicDetails: React.FC = () => {
                     <ContactNumberField />
 
                     <div className="relative mb-4">
-                      <div className="relative">
-                        <i className="fa-solid fa-envelope absolute left-3 top-1/2 transform -translate-y-1/2 text-yellow-500 z-10 text-base sm:text-lg"></i>
-                        <input
-                          type="email"
-                          name="email"
-                          value={formik.values.email}
-                          onChange={handleRegularChange}
-                          onBlur={formik.handleBlur}
-                          // disabled={!userEmail?.isEmailVerified === true}
-                          className={`w-full pl-10 sm:pl-12 pr-4 py-2 sm:py-3 border ${formik.touched.email && formik.errors.email ? 'border-red-500' : 'border-black'
-                            } rounded-[7px] font-montserrat-400 ${userEmail?.isEmailVerified === true ? 'bg-gray-200 cursor-not-allowed' : 'bg-white'
-                            } text-[#333333] placeholder-[#333333] focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 text-[16px] sm:text-lg`}
-                          placeholder="Enter Your Email.."
-                          required
-                        />
-
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center">
+                        <div className="w-6 h-6 rounded-full bg-gray-800 flex items-center justify-center">
+                          <FontAwesomeIcon icon={faEnvelope} className="text-white text-xs" />
+                        </div>
                       </div>
+                      <input
+                        type="email"
+                        name="email"
+                        value={formik.values.email}
+                        onChange={handleRegularChange}
+                        onBlur={formik.handleBlur}
+                        // disabled={!userEmail?.isEmailVerified === true}
+                        className={`w-full pl-10 sm:pl-12 pr-4 py-2 sm:py-3 border ${formik.touched.email && formik.errors.email ? 'border-red-500' : 'border-black'
+                          } rounded-[7px] font-montserrat-400 ${userEmail?.isEmailVerified === true ? 'bg-gray-200 cursor-not-allowed' : 'bg-white'
+                          } text-[#333333] placeholder-[#333333] focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 text-[16px] sm:text-lg`}
+                        placeholder="Enter Your Email.."
+                        required
+                      />
                       {formik.touched.email && formik.errors.email && (
                         <span className="block text-red-500 text-xs mt-1 ml-4">{formik.errors.email}</span>
                       )}
@@ -1335,111 +1460,123 @@ const AddBasicDetails: React.FC = () => {
 
                   <div className="space-y-4">
                     <div className="relative mb-4">
-                      <div className="relative">
-                        <i className="fa-solid fa-venus-mars absolute left-3 top-1/2 transform -translate-y-1/2 text-yellow-500 z-10 text-base sm:text-lg"></i>
-                        <select
-                          name="gender"
-                          value={formik.values.gender}
-                          onChange={handleRegularChange}
-                          onBlur={formik.handleBlur}
-                          className={`w-full pl-10 sm:pl-12 pr-4 py-2 sm:py-3 border ${formik.touched.gender && formik.errors.gender ? 'border-red-500' : 'border-black'}  rounded-[7px] font-montserrat-400 bg-white text-[#0331b5] placeholder-[#333333] focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 text-[16px] sm:text-lg ${formik.values.gender ? 'text-[#0331b5]' : 'text-gray-500'}`}
-                          required
-                        >
-                          <option value="" disabled>Select Gender</option>
-                          <option value="Male">Male</option>
-                          <option value="Female">Female</option>
-                          <option value="Others">Others</option>
-                        </select>
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center">
+                        <div className="w-6 h-6 rounded-full  flex items-center justify-center">
+                          <FontAwesomeIcon icon={faMars} className="text-black text-lg" />
+                        </div>
                       </div>
+                      <select
+                        name="gender"
+                        value={formik.values.gender}
+                        onChange={handleRegularChange}
+                        onBlur={formik.handleBlur}
+                        className={`w-full pl-10 sm:pl-12 pr-4 py-2 sm:py-3 border ${formik.touched.gender && formik.errors.gender ? 'border-red-500' : 'border-black'}  rounded-[7px] font-montserrat-400 bg-white text-[#0331b5] placeholder-[#333333] focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 text-[16px] sm:text-lg ${formik.values.gender ? 'text-[#0331b5]' : 'text-gray-500'}`}
+                        required
+                      >
+                        <option value="" disabled>Select Gender</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Others">Others</option>
+                      </select>
                       {formik.touched.gender && formik.errors.gender && (
                         <span className="block text-red-500 text-xs mt-1 ml-4">{formik.errors.gender}</span>
                       )}
                     </div>
 
                     <div className="relative mb-4">
-                      <div className="relative">
-                        <i className="fa-solid fa-droplet absolute left-3 top-1/2 transform -translate-y-1/2 text-yellow-500 z-10 text-base sm:text-lg"></i>
-                        <select
-                          name="bloodGroup"
-                          value={formik.values.bloodGroup}
-                          onChange={handleRegularChange}
-                          onBlur={formik.handleBlur}
-                          className={`w-full pl-10 sm:pl-12 pr-4 py-2 sm:py-3 border ${formik.touched.bloodGroup && formik.errors.bloodGroup ? 'border-red-500' : 'border-black'}  rounded-[7px] font-montserrat-400 bg-white text-[#0331b5] placeholder-[#333333] focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 text-[16px] sm:text-lg ${formik.values.bloodGroup && formik.values.bloodGroup !== '0' ? 'text-[#0331b5]' : 'text-gray-500'}`}
-                        >
-                          <option value="">Select BloodGroup</option>
-                          <option value="A+">A+</option>
-                          <option value="A-">A-</option>
-                          <option value="B+">B+</option>
-                          <option value="B-">B-</option>
-                          <option value="AB+">AB+</option>
-                          <option value="AB-">AB-</option>
-                          <option value="O+">O+</option>
-                          <option value="O-">O-</option>
-                        </select>
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center">
+                        <div className="w-6 h-6 rounded-full  flex items-center justify-center">
+                          <FontAwesomeIcon icon={faDroplet} className="text-black text-lg" />
+                        </div>
                       </div>
+                      <select
+                        name="bloodGroup"
+                        value={formik.values.bloodGroup}
+                        onChange={handleRegularChange}
+                        onBlur={formik.handleBlur}
+                        className={`w-full pl-10 sm:pl-12 pr-4 py-2 sm:py-3 border ${formik.touched.bloodGroup && formik.errors.bloodGroup ? 'border-red-500' : 'border-black'}  rounded-[7px] font-montserrat-400 bg-white text-[#0331b5] placeholder-[#333333] focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 text-[16px] sm:text-lg ${formik.values.bloodGroup && formik.values.bloodGroup !== '0' ? 'text-[#0331b5]' : 'text-gray-500'}`}
+                      >
+                        <option value="">Select BloodGroup</option>
+                        <option value="A+">A+</option>
+                        <option value="A-">A-</option>
+                        <option value="B+">B+</option>
+                        <option value="B-">B-</option>
+                        <option value="AB+">AB+</option>
+                        <option value="AB-">AB-</option>
+                        <option value="O+">O+</option>
+                        <option value="O-">O-</option>
+                      </select>
                       {formik.touched.bloodGroup && formik.errors.bloodGroup && (
                         <span className="block text-red-500 text-xs mt-1 ml-4">{formik.errors.bloodGroup}</span>
                       )}
                     </div>
 
                     <div className="relative mb-4">
-                      <div className="relative">
-                        <i className="fa-solid fa-location-dot absolute left-3 top-1/2 transform -translate-y-1/2 text-yellow-500 z-10 text-base sm:text-lg"></i>
-                        <input
-                          type="text"
-                          name="pincode"
-                          value={formik.values.pincode}
-                          onChange={handleCustomChange}
-                          onBlur={formik.handleBlur}
-                          className={`w-full pl-10 sm:pl-12 pr-4 py-2 sm:py-3 border ${formik.touched.pincode && formik.errors.pincode ? 'border-red-500' : 'border-black'}  rounded-[7px] font-montserrat-400 bg-white text-[#0331b5] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 text-[16px] sm:text-lg ${pincodeLoading ? 'opacity-50' : ''}`}
-                          placeholder="Ex. 400020"
-                          maxLength={6}
-                          disabled={pincodeLoading}
-                        />
-                        {pincodeLoading && (
-                          <div className="absolute right-3 sm:right-4 top-1/2 transform -translate-y-1/2">
-                            <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-b-2 border-blue-600"></div>
-                          </div>
-                        )}
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center">
+                        <div className="w-6 h-6 rounded-full  flex items-center justify-center">
+                          <FontAwesomeIcon icon={faMapPin} className="text-black text-lg" />
+                        </div>
                       </div>
+                      <i className="fa-solid fa-location-dot absolute left-3 top-1/2 transform -translate-y-1/2 text-yellow-500 z-10 text-base sm:text-lg"></i>
+                      <input
+                        type="text"
+                        name="pincode"
+                        value={formik.values.pincode}
+                        onChange={handleCustomChange}
+                        onBlur={formik.handleBlur}
+                        className={`w-full pl-10 sm:pl-12 pr-4 py-2 sm:py-3 border ${formik.touched.pincode && formik.errors.pincode ? 'border-red-500' : 'border-black'}  rounded-[7px] font-montserrat-400 bg-white text-[#0331b5] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 text-[16px] sm:text-lg ${pincodeLoading ? 'opacity-50' : ''}`}
+                        placeholder="Ex. 400020"
+                        maxLength={6}
+                        disabled={pincodeLoading}
+                      />
+                      {pincodeLoading && (
+                        <div className="absolute right-3 sm:right-4 top-1/2 transform -translate-y-1/2">
+                          <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-b-2 border-blue-600"></div>
+                        </div>
+                      )}
                       {formik.touched.pincode && formik.errors.pincode && (
                         <span className="block text-red-500 text-xs mt-1 ml-4">{formik.errors.pincode}</span>
                       )}
                     </div>
 
                     <div className="relative mb-4">
-                      <div className="relative">
-                        <i className="fa-solid fa-map-location-dot absolute left-3 top-1/2 transform -translate-y-1/2 text-yellow-500 z-10 text-base sm:text-lg"></i>
-                        <input
-                          type="text"
-                          name="state"
-                          value={formik.values.state}
-                          onChange={handleRegularChange}
-                          onBlur={formik.handleBlur}
-                          className={`w-full pl-10 sm:pl-12 pr-4 py-2 sm:py-3 border ${formik.touched.state && formik.errors.state ? 'border-red-500' : 'border-black'}  rounded-[7px] font-montserrat-400 bg-white text-[#0331b5] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 text-[16px] sm:text-lg`}
-                          placeholder="State (Auto-filled by pincode)"
-                          required
-                        />
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center">
+                        <div className="w-6 h-6 rounded-full  flex items-center justify-center">
+                          <FontAwesomeIcon icon={faMapMarkerAlt} className="text-black text-lg" />
+                        </div>
                       </div>
+                      <i className="fa-solid fa-map-location-dot absolute left-3 top-1/2 transform -translate-y-1/2 text-yellow-500 z-10 text-base sm:text-lg"></i>
+                      <input
+                        type="text"
+                        name="state"
+                        value={formik.values.state}
+                        onChange={handleRegularChange}
+                        onBlur={formik.handleBlur}
+                        className={`w-full pl-10 sm:pl-12 pr-4 py-2 sm:py-3 border ${formik.touched.state && formik.errors.state ? 'border-red-500' : 'border-black'}  rounded-[7px] font-montserrat-400 bg-white text-[#0331b5] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 text-[16px] sm:text-lg`}
+                        placeholder="State (Auto-filled by pincode)"
+                        required
+                      />
                       {formik.touched.state && formik.errors.state && (
                         <span className="block text-red-500 text-xs mt-1 ml-4">{formik.errors.state}</span>
                       )}
                     </div>
 
                     <div className="relative mb-4">
-                      <div className="relative">
-                        <i className="fa-solid fa-city absolute left-3 top-1/2 transform -translate-y-1/2 text-yellow-500 z-10 text-base sm:text-lg"></i>
-                        <input
-                          type="text"
-                          name="city"
-                          value={formik.values.city}
-                          onChange={handleRegularChange}
-                          onBlur={formik.handleBlur}
-                          className={`w-full pl-10 sm:pl-12 pr-4 py-2 sm:py-3 border ${formik.touched.city && formik.errors.city ? 'border-red-500' : 'border-black'}  rounded-[7px] font-montserrat-400 bg-white text-[#0331b5] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 text-[16px] sm:text-lg`}
-                          placeholder="City (Auto-filled by pincode)"
-                          required
-                        />
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center">
+                        <div className="w-6 h-6 rounded-full  flex items-center justify-center">
+                          <FontAwesomeIcon icon={faCity} className="text-black text-lg" />
+                        </div>
                       </div>
+                      <input
+                        type="text"
+                        name="city"
+                        value={formik.values.city}
+                        onChange={handleRegularChange}
+                        onBlur={formik.handleBlur}
+                        className={`w-full pl-10 sm:pl-12 pr-4 py-2 sm:py-3 border ${formik.touched.city && formik.errors.city ? 'border-red-500' : 'border-black'}  rounded-[7px] font-montserrat-400 bg-white text-[#0331b5] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 text-[16px] sm:text-lg`}
+                        placeholder="City (Auto-filled by pincode)"
+                        required
+                      />
                       {formik.touched.city && formik.errors.city && (
                         <span className="block text-red-500 text-xs mt-1 ml-4">{formik.errors.city}</span>
                       )}
@@ -1452,8 +1589,11 @@ const AddBasicDetails: React.FC = () => {
                 <div className="flex flex-col items-center space-y-4 mt-6 sm:mt-8">
                   <button
                     type="submit"
-                    disabled={loading}
-                    className={`bg-[#F9E380] hover:bg-[#ffd100] font-montserrat-500 text-black   py-3 sm:py-4 px-12 sm:px-16 rounded-full transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 min-w-[160px] sm:min-w-[200px] text-sm sm:text-base ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    disabled={loading || !isPhoneVerified || !isEmailVerified}
+                    className={`bg-[#F9E380] hover:bg-[#ffd100] font-montserrat-500 cursor-pointer text-black py-3 sm:py-4 px-12 sm:px-16 rounded-full transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 min-w-[160px] sm:min-w-[200px] text-sm sm:text-base ${loading || !isPhoneVerified || !isEmailVerified
+                      ? 'opacity-50 cursor-not-allowed'
+                      : ''
+                      }`}
                   >
                     {loading ? 'Updating...' : 'Update'}
                   </button>

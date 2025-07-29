@@ -2,7 +2,7 @@
 export const runtime = 'edge'
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import {  Share2, Trash2, ChevronDown, Search, Send, X } from 'lucide-react';
+import { Share2, Trash2, ChevronDown, Search, Send, X } from 'lucide-react';
 import MasterHome from '../components/MasterHome';
 import { ListReport, MemberList, DeleteReport, ReportShare } from '../services/HfilesServiceApi';
 import { toast, ToastContainer } from 'react-toastify';
@@ -61,7 +61,7 @@ const AllReportsPage = () => {
         expiryDate: string;
         expiryTime: string;
     } | null>(null);
-    
+
     // New state for multi-step share flow
     const [isSelectMode, setIsSelectMode] = useState(false);
 
@@ -111,18 +111,18 @@ const AllReportsPage = () => {
         }
     };
 
-    
+
     useEffect(() => {
         const fetchCurrentUserId = async () => {
-          const id = await getUserId();
-          console.log("Setting currentUserId to:", id);
-          setCurrentUserId(id);
+            const id = await getUserId();
+            console.log("Setting currentUserId to:", id);
+            setCurrentUserId(id);
         };
-      
+
         fetchCurrentUserId();
-      }, []);
-      
-    
+    }, []);
+
+
 
     const fetchMemberList = async () => {
         const currentUserId = await getUserId();
@@ -148,20 +148,20 @@ const AllReportsPage = () => {
     const fetchAllReports = async () => {
         try {
             setError('');
-    
+
             let userId: number | undefined;
-    
+
             if (selectedUser === 'current') {
                 userId = await getUserId();
             } else if (selectedUser !== 'all') {
                 const parsed = parseInt(selectedUser, 10);
                 userId = isNaN(parsed) ? undefined : parsed;
             } // else keep userId as undefined to fetch all users' reports
-    
+
             const reportType = selectedReportType !== 'all' ? selectedReportType : undefined;
-    
+
             const response = await ListReport(userId, reportType);
-    
+
             if (response && response.data && response.data.success) {
                 const apiData: ApiResponse = response.data;
                 setReports(apiData.data.reports || []);
@@ -174,8 +174,8 @@ const AllReportsPage = () => {
             setError('You are not authorized to view reports for this user.');
         }
     };
-    
-    
+
+
     useEffect(() => {
         fetchAllReports();
     }, [selectedUser, selectedReportType]);
@@ -311,34 +311,34 @@ const AllReportsPage = () => {
 
     const filteredReports = reports.filter((report) => {
         const term = searchTerm.toLowerCase();
-      
+
         const matchesSearch =
-          report.reportName?.toLowerCase().includes(term) ||
-          report.reportType?.toLowerCase().includes(term) ||
-          report.userType?.toLowerCase().includes(term) ||
-          report.userId?.toString().includes(term);
-      
+            report.reportName?.toLowerCase().includes(term) ||
+            report.reportType?.toLowerCase().includes(term) ||
+            report.userType?.toLowerCase().includes(term) ||
+            report.userId?.toString().includes(term);
+
         const matchesReportType =
-          selectedReportType === 'all' || report.reportType === selectedReportType;
-      
-          console.log(currentUserId);
-          Number(currentUserId);
+            selectedReportType === 'all' || report.reportType === selectedReportType;
+
+        console.log(currentUserId);
+        Number(currentUserId);
 
         const matchesUser =
-          selectedUser === 'all' ||
-          (selectedUser === 'current' && currentUserId !== null && report.userId === currentUserId) ||
-          report.userId.toString() === selectedUser;
-      
-        return matchesSearch && matchesReportType && matchesUser;
-      });
+            selectedUser === 'all' ||
+            (selectedUser === 'current' && currentUserId !== null && report.userId === currentUserId) ||
+            report.userId.toString() === selectedUser;
 
-      
+        return matchesSearch && matchesReportType && matchesUser;
+    });
+
+
 
     return (
         <MasterHome>
             <div className="h-[calc(100vh-80px)] sm:h-[calc(100vh-90px)] md:h-[calc(100vh-100px)] lg:h-[calc(100vh-120px)] xl:h-[calc(100vh-139px)] 2xl:h-[calc(100vh-140px)]">
                 {/* Header */}
-                <div className="bg-white shadow-sm border-b">
+                <div className="bg-white border-b-8 border-gray-200 ml-3">
                     <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
                         <div className="relative h-14 sm:h-16 md:h-18 lg:h-20 flex items-center justify-between">
 
@@ -348,7 +348,7 @@ const AllReportsPage = () => {
                                     onClick={handleBack}
                                     className="mr-1 sm:mr-2 p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 transition-colors flex items-center"
                                 >
-                                   <FaLessThan className="w-4 h-4 mr-2" />
+                                    <FaLessThan className="w-4 h-4 mr-2" />
                                     <span className="text-xs sm:text-sm font-medium text-gray-700 hidden sm:inline">Back</span>
                                 </button>
                             </div>
@@ -356,22 +356,30 @@ const AllReportsPage = () => {
                             {/* Title */}
                             <div className="flex-1 text-center px-2">
                                 <h1 className="text-sm sm:text-lg md:text-xl lg:text-2xl font-bold">
-                                    <span className="text-blue-600">{userName.toUpperCase()}'S</span>{' '}
-                                    <span className="text-gray-600">REPORTS</span>
+                                    <span className="text-blue-800 font-poppins-600 font-semibold">{userName.toUpperCase()}'S</span>{' '}
+                                    <span className="text-gray-400">REPORTS</span>
                                 </h1>
                             </div>
 
                             {/* Search - Desktop */}
                             <div className="hidden lg:block">
-                                <div className="relative">
-                                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
+                                <div className="relative w-[206px] h-[43px]">
+                                    {/* Input Field */}
                                     <input
                                         type="text"
                                         placeholder="Search"
                                         value={searchTerm}
                                         onChange={(e) => setSearchTerm(e.target.value)}
-                                        className="pl-10 pr-4 py-2 w-48 xl:w-64 2xl:w-72 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50"
+                                        className="w-full h-full pl-4 pr-12 text-sm border border-gray-300 rounded-full focus:outline-none  bg-white"
                                     />
+
+                                    {/* Search Button with Icon */}
+                                    <button
+                                        type="button"
+                                        className="absolute right-0 top-1/2 transform -translate-y-1/2 w-10 h-10 bg-[#001f4d] rounded-full flex items-center justify-center"
+                                    >
+                                        <Search className="text-white" size={20} />
+                                    </button>
                                 </div>
                             </div>
 
@@ -414,11 +422,10 @@ const AllReportsPage = () => {
                                         <button
                                             onClick={handleSendReports}
                                             disabled={isSharing || selectedReports.size === 0}
-                                            className={`flex items-center space-x-2 px-3 md:px-4 py-2 rounded-lg transition-colors text-sm md:text-base ${
-                                                selectedReports.size > 0 && !isSharing
-                                                    ? 'bg-blue-600 text-white hover:bg-blue-700'
-                                                    : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                                            }`}
+                                            className={`flex items-center space-x-2 px-3 md:px-4 py-2 rounded-lg transition-colors text-sm md:text-base ${selectedReports.size > 0 && !isSharing
+                                                ? 'bg-blue-600 text-white hover:bg-blue-700'
+                                                : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                                                }`}
                                         >
                                             {isSharing ? (
                                                 <div className="w-4 h-4 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin"></div>
@@ -464,7 +471,7 @@ const AllReportsPage = () => {
                                         className="appearance-none text-black border border-gray-400 px-3 md:px-4 py-2 pr-8 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm md:text-base"
                                     >
                                         <option value="all">All Users</option>
-                                         <option value="current">Self</option>
+                                        <option value="current">Self</option>
                                         {memberList.map((member) => (
                                             <option key={member.id} value={member.id.toString()}>
                                                 {member.firstName}
@@ -496,11 +503,10 @@ const AllReportsPage = () => {
                                             <button
                                                 onClick={handleSendReports}
                                                 disabled={isSharing || selectedReports.size === 0}
-                                                className={`flex items-center justify-center space-x-1 px-3 py-2 rounded-lg transition-colors text-sm ${
-                                                    selectedReports.size > 0 && !isSharing
-                                                        ? 'bg-blue-600 text-white hover:bg-blue-700'
-                                                        : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                                                }`}
+                                                className={`flex items-center justify-center space-x-1 px-3 py-2 rounded-lg transition-colors text-sm ${selectedReports.size > 0 && !isSharing
+                                                    ? 'bg-blue-600 text-white hover:bg-blue-700'
+                                                    : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                                                    }`}
                                             >
                                                 {isSharing ? (
                                                     <div className="w-3 h-3 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin"></div>
@@ -523,37 +529,37 @@ const AllReportsPage = () => {
 
                                     {/* User Filter */}
                                     <div className="relative flex-1">
+                                        <select
+                                            value={selectedUser}
+                                            onChange={(e) => setSelectedUser(e.target.value)}
+                                            className="appearance-none text-black border border-gray-400 px-3 py-3 pr-7 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-full text-sm"
+                                        >
+                                            <option value="current">Current User</option>
+                                            <option value="all">All Users</option>
+                                            {memberList.map((member) => (
+                                                <option key={member.id} value={member.id.toString()}>
+                                                    {member.firstName}
+                                                </option>
+                                            ))}
+                                        </select>
+                                        <ChevronDown
+                                            className="absolute right-2 top-1/2 transform -translate-y-1/2 text-black"
+                                            size={14}
+                                        />
+                                    </div>
                                     <select
-  value={selectedUser}
-  onChange={(e) => setSelectedUser(e.target.value)}
-  className="appearance-none text-black border border-gray-400 px-3 py-3 pr-7 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-full text-sm"
->
-  <option value="current">Current User</option>
-  <option value="all">All Users</option>
-  {memberList.map((member) => (
-    <option key={member.id} value={member.id.toString()}>
-      {member.firstName}
-    </option>
-  ))}
-</select>
-  <ChevronDown
-    className="absolute right-2 top-1/2 transform -translate-y-1/2 text-black"
-    size={14}
-  />
-</div>
-<select
-  value={selectedUser}
-  onChange={(e) => setSelectedUser(e.target.value)}
-  className="appearance-none text-black border border-gray-400 px-3 py-3 pr-7 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-full text-sm"
->
-  <option value="current">Current User</option>
-  <option value="all">All Users</option>
-  {memberList.map((member) => (
-    <option key={member.id} value={member.id.toString()}>
-      {member.firstName}
-    </option>
-  ))}
-</select>
+                                        value={selectedUser}
+                                        onChange={(e) => setSelectedUser(e.target.value)}
+                                        className="appearance-none text-black border border-gray-400 px-3 py-3 pr-7 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-full text-sm"
+                                    >
+                                        <option value="current">Current User</option>
+                                        <option value="all">All Users</option>
+                                        {memberList.map((member) => (
+                                            <option key={member.id} value={member.id.toString()}>
+                                                {member.firstName}
+                                            </option>
+                                        ))}
+                                    </select>
 
                                     {/* Report Type Filter */}
                                     <div className="relative flex-1">
@@ -645,27 +651,27 @@ const AllReportsPage = () => {
                                     </div>
 
                                     <div className="p-3 sm:p-4">
-                                        <h3 className="font-semibold text-blue-800 mb-2 truncate text-sm sm:text-base">
+                                        <h3 className="font-bold font-montserrat-700 text-blue-800 mb-2 truncate text-sm sm:text-base">
                                             {report.reportName}
                                         </h3>
-                                        <div className='border border-gray-400 mb-2'></div>
+                                        <div className='border border-gray-200 mb-2'></div>
 
-                                        <div className="space-y-1 text-xs sm:text-sm text-gray-600 mb-3 sm:mb-4">
+                                        <div className="space-y-1 text-xs sm:text-sm text-black mb-3 sm:mb-4">
                                             <div>
-                                                <span className="font-medium">Type:</span> {report.reportType}
+                                                <span className=" font-black font-montserrat-700">Type:</span> {report.reportType}
                                             </div>
                                             <div>
-                                                <span className="font-medium">User:</span> {report.userName}
+                                                <span className=" font-montserrat-700">User:</span> {report.userName}
                                             </div>
                                             <div>
-                                                <span className="font-medium">Date:</span> {report.reportDate} {report.reportTime}
+                                                <span className="font-montserrat-700">Date:</span> {report.reportDate} {report.reportTime}
                                             </div>
                                         </div>
 
                                         <div className="flex items-center gap-2">
                                             <button
                                                 onClick={() => handleViewFile(report)}
-                                                className="flex-1 primary text-white py-2 px-2 sm:px-4 rounded-lg hover:bg-blue-700 transition-colors font-medium text-xs sm:text-sm"
+                                                className="flex-1 primary text-white font-poppins-600  py-2 px-2 sm:px-4 rounded-lg hover:bg-blue-700 transition-colors font-medium text-xs sm:text-sm"
                                             >
                                                 View File
                                             </button>

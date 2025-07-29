@@ -17,7 +17,7 @@ const MasterHome: React.FC<HomeProps> = ({ children }) => {
       <main
         className={`flex-grow transition duration-300`}
       >
-        <div className="flex-grow overflow-y-auto custom-scrollbar">
+        <div className="flex-grow transition duration-300 overflow-y-auto scroll-ultrathin">
           {children}
         </div>
       </main>

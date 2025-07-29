@@ -11,6 +11,7 @@ import { ListStorage, MemberList, ReportAdd } from '../services/HfilesServiceApi
 import { toast, ToastContainer } from 'react-toastify';
 import My_hfiles_phoneview from '../components/My_hfiles_phoneview/page';
 import './style.css';
+import AddReportsModal from '../components/AddReportsModal';
 
 type User = {
     id: number;
@@ -101,12 +102,17 @@ const MedicalDashboard = () => {
 
     const handleReportCategoryClick = (reportTypeName: string) => {
         const currentUserId = selectedUserId || userIdFromStorage;
+        const currentUserName = selectedUser || userNameFromStorage;
         if (!currentUserId) {
             toast.error("Please select a user first.");
             return;
         }
 
-        router.push(`/reportsPage?userId=${currentUserId}&reportType=${encodeURIComponent(reportTypeName)}`);
+        // router.push(`/reportsPage?userId=${currentUserId}&reportType=${encodeURIComponent(reportTypeName)}`);
+        router.push(
+            `/reportsPage?userId=${currentUserId}&reportType=${encodeURIComponent(reportTypeName)}&userName=${encodeURIComponent(currentUserName)}`
+        );
+
     };
 
     const handleAllReportsClick = () => {
@@ -299,22 +305,22 @@ const MedicalDashboard = () => {
             </div>
             <div className="hidden md:flex h-[calc(100vh-80px)] sm:h-[calc(100vh-90px)] md:h-[calc(100vh-100px)] lg:h-[calc(100vh-139px)] 2xl:h-[calc(100vh-140px)] bg-gray-50">
                 {/* Left Sidebar */}
-                <div className="w-50  main_left_side_bar  bg-white shadow-lg flex flex-col items-center py-6">
+                <div className="w-full sm:w-80 md:w-72 lg:w-80 xl:w-96 main_left_side_bar bg-white shadow-lg flex flex-col items-center py-4 sm:py-6 h-full overflow-y-auto scroll-ultrathin">
                     {/* Top Divider */}
                     <p
-                        className='font-bold text-black text-lg cursor-pointer'
+                        className='font-bold text-black text-base sm:text-lg md:text-xl cursor-pointer px-4 text-center hover:text-blue-600 transition-colors'
                         onClick={() => handleUserSelection(userNameFromStorage, userIdFromStorage)}
                     >
                         {userNameFromStorage || 'No Name'}
                     </p>
-                    <div className="w-full border-t mb-6"></div>
+                    <div className="w-full border-t mb-4 sm:mb-6"></div>
 
                     {/* Users List */}
-                    <div className="flex flex-col items-center w-full space-y-2">
+                    <div className="flex flex-col items-center w-full space-y-3 sm:space-y-2 px-2 sm:px-4">
                         {users?.map((user: any, index: any) => (
                             <div key={user.id} className="flex flex-col items-center w-full">
                                 <div
-                                    className={`w-16 h-16 rounded-full overflow-hidden border border-gray-300 cursor-pointer hover:scale-110 transition-transform ${selectedUser === user.name ? 'ring-2 ring-blue-400' : ''
+                                    className={`w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full overflow-hidden border border-gray-300 cursor-pointer hover:scale-110 transition-transform ${selectedUser === user.name ? 'ring-2 ring-blue-400' : ''
                                         }`}
                                     onClick={() => handleUserSelection(user.name, user.id)}
                                 >
@@ -329,27 +335,30 @@ const MedicalDashboard = () => {
                                         }}
                                     />
                                     {!user.profileURL && (
-                                        <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-600 font-semibold">
+                                        <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-600 font-semibold text-sm sm:text-base">
                                             {user.name.charAt(0).toUpperCase()}
                                         </div>
                                     )}
                                 </div>
-                                <p className="text-sm font-medium text-gray-800 mt-1">{user.name}</p>
+                                <p className="text-xs sm:text-sm font-medium text-gray-800 mt-1 text-center px-1 truncate max-w-full">
+                                    {user.name}
+                                </p>
                                 {index !== users.length - 1 && (
-                                    <hr className="w-10/12 border-t border-gray-300 my-3" />
+                                    <hr className="w-8/12 sm:w-10/12 border-t border-gray-300 my-2 sm:my-3" />
                                 )}
                             </div>
                         ))}
 
                         {/* Add Member Button */}
-                        <div className="flex flex-col items-center mt-2">
+                        <div className="flex flex-col items-center mt-3 sm:mt-2">
                             <button
                                 onClick={() => router.push('/addMember')}
-                                className="w-10 h-10 border-2 border-dashed cursor-pointer border-gray-300 rounded-full flex items-center justify-center text-gray-400 hover:border-blue-400 hover:text-blue-400 transition-colors"
+                                className="w-8 h-8 sm:w-10 sm:h-10 border-2 border-dashed cursor-pointer border-gray-300 rounded-full flex items-center justify-center text-gray-400 hover:border-blue-400 hover:text-blue-400 transition-colors touch-manipulation"
                             >
-                                <Plus size={18} />
+                                <Plus size={16} className="sm:hidden" />
+                                <Plus size={18} className="hidden sm:block" />
                             </button>
-                            <p className="text-xs text-gray-500 mt-2">Add Member</p>
+                            <p className="text-xs text-gray-500 mt-1 sm:mt-2 text-center">Add Member</p>
                         </div>
                     </div>
                 </div>
@@ -533,137 +542,9 @@ const MedicalDashboard = () => {
 
                 {/* Add Reports Modal */}
                 {isModalOpen && (
-                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                        <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto">
-                            {/* Modal Header */}
-                            <div className="flex justify-between items-center mb-6">
-                                <h2 className="text-xl font-bold text-gray-800">Add New Report</h2>
-                                <button
-                                    onClick={closeModal}
-                                    disabled={isSubmitting}
-                                    className="text-gray-500 hover:text-gray-700 transition-colors disabled:opacity-50"
-                                >
-                                    <X size={24} />
-                                </button>
-                            </div>
-
-                            {/* Modal Form */}
-                            <div className="space-y-4">
-                                {/* Report Type Dropdown */}
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        Report Type *
-                                    </label>
-                                    <select
-                                        name="reportType"
-                                        value={reportType}
-                                        onChange={(e) => setReportType(e.target.value)}
-                                        disabled={isSubmitting}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
-                                        required
-                                    >
-                                        <option value="" disabled>Select a report</option>
-                                        {reportTypes.map((type) => (
-                                            <option key={type.Id} value={type.Name}>
-                                                {type.Name}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
-
-                                {/* File Name */}
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        File Name *
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={fileName}
-                                        onChange={(e) => setFileName(e.target.value)}
-                                        disabled={isSubmitting}
-                                        placeholder="Enter file name"
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
-                                        required
-                                    />
-                                </div>
-
-                                {/* File Upload */}
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        Select File *
-                                    </label>
-                                    <div className="relative">
-                                        <input
-                                            type="file"
-                                            onChange={handleFileChange}
-                                            disabled={isSubmitting}
-                                            className="hidden"
-                                            id="file-upload"
-                                            accept="*/*"
-                                        />
-                                        <label
-                                            htmlFor="file-upload"
-                                            className={`w-full flex items-center justify-center px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition-colors ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                        >
-                                            <div className="text-center">
-                                                <Upload className="mx-auto h-8 w-8 text-gray-400 mb-2" />
-                                                <span className="text-sm text-gray-600">
-                                                    {selectedFile ? selectedFile.name : 'Click to upload file'}
-                                                </span>
-                                                <p className="text-xs text-gray-500 mt-1">
-                                                    All file types supported (Max: 10MB)
-                                                </p>
-                                            </div>
-                                        </label>
-                                    </div>
-                                </div>
-
-                                <div>
-                                    {independent?.length > 0 && (
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                                Select Independent Members (optional)
-                                            </label>
-                                            <div className="space-y-2 max-h-40 overflow-y-auto border p-2 rounded">
-                                                {independent.map((member: any) => (
-                                                    <label key={member.id} className="flex items-center space-x-2">
-                                                        <input
-                                                            type="checkbox"
-                                                            checked={selectedIndependentIds.includes(member.id)}
-                                                            onChange={() => handleCheckboxChange(member.id)}
-                                                            className="text-blue-600 focus:ring-blue-500"
-                                                        />
-                                                        <span className="text-sm text-gray-700">
-                                                            {member.firstName} {member.lastName}
-                                                        </span>
-                                                    </label>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    )}
-
-                                </div>
-                            </div>
-
-                            {/* Modal Footer */}
-                            <div className="flex space-x-3 mt-6">
-                                <button
-                                    onClick={closeModal}
-                                    disabled={isSubmitting}
-                                    className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    onClick={handleSubmitReport}
-                                    disabled={!reportType || !fileName || !selectedFile || isSubmitting}
-                                    className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
-                                >
-                                    {isSubmitting ? "Adding Report..." : "Add Report"}
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+                    <AddReportsModal isSubmitting={isSubmitting} reportType={reportType} setReportType={setReportType} reportTypes={reportTypes}
+                    fileName={fileName} setFileName={setFileName} handleFileChange={handleFileChange} selectedFile={selectedFile} handleCheckboxChange={handleCheckboxChange}
+                    selectedIndependentIds={selectedIndependentIds} independent={independent} handleSubmitReport={handleSubmitReport} closeModal={closeModal} />
                 )}
             </div>
             <ToastContainer />

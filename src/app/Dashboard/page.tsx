@@ -1,9 +1,9 @@
 'use client';
-export const runtime = 'edge'
 import React, { useEffect, useState } from 'react';
 import { ChevronRight } from 'lucide-react';
-import MasterHome from '../components/MasterHome';
 import { useRouter } from 'next/navigation';
+import MasterHome from '../components/MasterHome';
+
 
 function Dashboard() {
   const [userName, setUserName] = useState('');
@@ -26,722 +26,117 @@ function Dashboard() {
 
   return (
     <MasterHome>
-      <>
-        <style jsx>{`
-        @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
-
-        * {
-          margin: 0;
-          padding: 0;
-          box-sizing: border-box;
-        }
-
-        body {
-          margin: 0 !important;
-          padding: 0 !important;
-          height: 100%;
-          font-family: 'Poppins', sans-serif;
-        }
-
-        .welcome-section {
-          text-align: center;
-          margin: 30px 70px;
-        }
-
-        .welcome-section p {
-          font-size: 24px;
-          font-weight: 500;
-          color: black;
-          text-align: center;
-          line-height: 34px;
-          letter-spacing: 1px;
-          font-family: 'Montserrat', sans-serif;
-        }
-
-        .welcome-section span {
-          color: #0331B5;
-          font-weight: 600;
-        }
-
-        .welcome_divider {
-          height: 1px;
-          background-color: #333333;
-          width: 80%;
-          max-width: 200px;
-          margin: 10px auto;
-        }
-
-        .journal_container {
-          position: relative;
-          width: 100%;
-        }
-
-        .card-container {
-          
-          margin: 0 30px 75px 30px;
-          padding: 30px;
-          border-radius: 12px;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          background: linear-gradient(180deg, #FFFFFF 7%, #CAE5FF 85%);
-          position: relative;
-          z-index: 1;
-          box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.2);
-          border: 1px solid rgba(0, 0, 0, 0.3);
-        }
-
-        .background-wrapper-desktop {
-          position: absolute;
-          top: 0;
-          left: 7.5%;
-          width: 45vw;
-          max-width: 685px;
-          height: 100%;
-          background-image: url('https://via.placeholder.com/600x400/FFE4B5/000000?text=Samanta');
-          background-size: contain;
-          background-position: top left;
-          background-repeat: no-repeat;
-          z-index: -1;
-        }
-
-        .journal_main {
-          display: grid;
-          grid-template-columns: 1fr auto 1fr;
-          align-items: center;
-          justify-content: space-evenly;
-          margin: 0 20px;
-          gap: 80px;
-          width: 100%;
-        }
-
-        .image_container {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 20px;
-        }
-
-        .image_container img {
-          max-width: 100%;
-          width: 550px;
-          height: auto;
-          object-fit: contain;
-        }
-
-        .image_content {
-          text-align: center;
-          color: black;
-          font-size: 23px;
-          letter-spacing: 2px;
-          font-family: 'Montserrat', sans-serif;
-        }
-
-        .divider {
-          width: 1px;
-          background-color: #333333;
-          min-height: 300px;
-          align-self: center;
-        }
-
-        .content_container {
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-        }
-
-        .content_header {
-          margin-bottom: 10px;
-        }
-
-        .content_header p {
-          text-align: center;
-          font-size: 22px;
-          font-weight: 600;
-          margin: 0;
-          font-family: 'Poppins', sans-serif;
-        }
-
-        .content_header span {
-          color: #0331B5;
-        }
-
-        .content_divider {
-          height: 1px;
-          background-color: #333333;
-          width: 80%;
-          max-width: 125px;
-          margin: 10px auto;
-          font-weight: normal;
-        }
-
-        .my_profile {
-          height: 65px;
-          border-radius: 17.5px;
-          margin: 0 0 1.5rem 0;
-          background-color: white;
-          box-shadow: 0px 5px 10px #393838;
-          display: flex;
-          flex-direction: row;
-          align-items: center;
-          justify-content: space-between;
-          padding: 65px 25px;
-          gap: 10px;
-          text-decoration: none;
-          transition: all 0.3s ease;
-          cursor: pointer;
-        }
-
-        .my_profile:hover {
-          background-color: #F9E380;
-        }
-
-        .default_profile {
-          background-color: #F9E380 !important;
-        }
-
-        .profile_row {
-          display: flex;
-          align-items: center;
-          flex: 1;
-        }
-
-        .image_wrapper {
-          width: 100px;
-          height: 100px;
-          overflow: hidden;
-          background-color: white;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          border: 1px solid #3333;
-          border-radius: 12px;
-          margin-right: 20px;
-        }
-
-        .image_wrapper img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          border-radius: 0;
-        }
-
-        .my_profile_content {
-          display: flex;
-          flex-direction: column;
-          gap: 5px;
-          max-width: 75%;
-        }
-
-        .my_profile h3 {
-          color: black;
-          font-weight: 600;
-          font-size: 25px;
-          margin: 0;
-          font-family: 'Poppins', sans-serif;
-        }
-
-        .card-description {
-          color: black;
-          font-size: 19px;
-          font-weight: 300;
-          font-family: 'Montserrat', sans-serif;
-        }
-
-        .card_icon {
-          color: #333333;
-          font-size: 20px;
-        }
-
-        .mobile-view {
-          display: none;
-        }
-
-        .tablet-only {
-          display: none;
-        }
-
-        .mobile-only {
-          display: none;
-        }
-
-        .user-info {
-          font-family: 'Poppins', sans-serif;
-          font-weight: 600;
-          color: #0331B5;
-          font-size: 18px;
-        }
-
-        /* Mobile Responsiveness */
-        @media (max-width: 768px) {
-          .mobile-view {
-            display: block;
-          }
-
-          .desktop-view {
-            display: none;
-          }
-
-          .tablet-only {
-            display: none;
-          }
-
-          .mobile-only {
-            display: block;
-          }
-
-          .mobile-container {
-            padding: 20px;
-            background-color: #f8f9fa;
-            min-height: 100vh;
-          }
-
-          .mobile-header {
-            text-align: center;
-            margin-bottom: 20px;
-          }
-
-          .mobile-header h1 {
-            font-size: 28px;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 20px;
-            font-family: 'Poppins', sans-serif;
-          }
-
-          .mobile-samantha-section {
-            background: linear-gradient(180deg, #E3F2FD 0%, #BBDEFB 100%);
-            border-radius: 20px;
-            padding: 30px 20px;
-            text-align: center;
-            margin-bottom: 30px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-          }
-
-          .mobile-samantha-image {
-            width: 200px;
-            height: 150px;
-            margin: 0 auto 20px;
-            background-color: #f0f0f0;
-            border-radius: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-            color: #666;
-          }
-
-          .mobile-samantha-text {
-            font-size: 16px;
-            font-weight: 500;
-            color: #333;
-            font-family: 'Poppins', sans-serif;
-            margin-bottom: 20px;
-          }
-
-          .mobile-hfiles-card {
-            background-color: #FFF3CD;
-            border-radius: 15px;
-            padding: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            cursor: pointer;
-            transition: all 0.3s ease;
-          }
-
-          .mobile-hfiles-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
-          }
-
-          .mobile-hfiles-content {
-            display: flex;
-            align-items: center;
-            flex: 1;
-          }
-
-          .mobile-hfiles-icon {
-            width: 50px;
-            height: 50px;
-            background-color: #0331B5;
-            border-radius: 10px;
-            margin-right: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 24px;
-          }
-
-          .mobile-hfiles-text h3 {
-            font-size: 18px;
-            font-weight: 600;
-            color: #333;
-            margin: 0 0 5px 0;
-            font-family: 'Poppins', sans-serif;
-          }
-
-          .mobile-hfiles-text p {
-            font-size: 14px;
-            color: #666;
-            margin: 0;
-            font-family: 'Montserrat', sans-serif;
-          }
-
-          .mobile-records-section {
-            margin-top: 30px;
-          }
-
-          .mobile-records-header {
-            text-align: center;
-            margin-bottom: 20px;
-          }
-
-          .mobile-records-header h2 {
-            font-size: 20px;
-            font-weight: 500;
-            color: #333;
-            font-family: 'Poppins', sans-serif;
-          }
-
-          .mobile-records-header span {
-            color: #0331B5;
-            font-weight: 600;
-          }
-
-          .mobile-records-divider {
-            height: 2px;
-            background-color: #0331B5;
-            width: 60px;
-            margin: 10px auto;
-          }
-
-          .mobile-card {
-            background-color: white;
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            cursor: pointer;
-            transition: all 0.3s ease;
-          }
-
-          .mobile-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
-          }
-
-          .mobile-card-content {
-            display: flex;
-            align-items: center;
-            flex: 1;
-          }
-
-          .mobile-card-icon {
-            width: 50px;
-            height: 50px;
-            border-radius: 10px;
-            margin-right: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-          }
-
-          .mobile-card-icon.medical {
-            background-color: #FFE5E5;
-            color: #E74C3C;
-          }
-
-          .mobile-card-icon.journal {
-            background-color: #F0E5FF;
-            color: #9B59B6;
-          }
-
-          .mobile-card-text h3 {
-            font-size: 18px;
-            font-weight: 600;
-            color: #333;
-            margin: 0 0 5px 0;
-            font-family: 'Poppins', sans-serif;
-          }
-
-          .mobile-card-text p {
-            font-size: 14px;
-            color: #666;
-            margin: 0;
-            font-family: 'Montserrat', sans-serif;
-          }
-
-          .mobile-card-arrow {
-            color: #666;
-          }
-        }
-
-        @media (max-width: 480px) {
-          .mobile-header h1 {
-            font-size: 24px;
-          }
-
-          .mobile-samantha-text {
-            font-size: 14px;
-          }
-
-          .mobile-hfiles-text h3 {
-            font-size: 16px;
-          }
-
-          .mobile-hfiles-text p {
-            font-size: 12px;
-          }
-
-          .mobile-card-text h3 {
-            font-size: 16px;
-          }
-
-          .mobile-card-text p {
-            font-size: 12px;
-          }
-
-          .mobile-container {
-            padding: 15px;
-          }
-        }
-
-        /* Laptop Responsiveness */
-        @media (min-width: 1024px) and (max-width: 1200px) {
-          .welcome-section p {
-            font-size: 22px;
-          }
-
-          .image_content {
-            font-size: 19px;
-          }
-
-          .content_header p {
-            font-size: 17px;
-          }
-
-          .image_container img {
-            width: 325px;
-          }
-
-          .background-wrapper-desktop {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 45vw;
-            max-width: 650px;
-            height: 100%;
-            background-image: url('https://via.placeholder.com/600x400/FFE4B5/000000?text=Samanta');
-            background-size: contain;
-            background-position: top left;
-            background-repeat: no-repeat;
-            z-index: -1;
-          }
-
-          .image_wrapper {
-            width: 75px;
-            height: 75px;
-          }
-
-          .my_profile h3 {
-            font-size: 19px;
-          }
-
-          .my_profile {
-            padding: 50px 25px !important;
-          }
-
-          .card-description {
-            font-size: 13px;
-          }
-        }
-
-        /* Tablet Responsiveness */
-        @media (min-width: 769px) and (max-width: 1023px) {
-          .mobile-view {
-            display: block;
-          }
-
-          .desktop-view {
-            display: none;
-          }
-
-          .mobile-only {
-            display: none;
-          }
-
-          .tablet-only {
-            display: block;
-          }
-
-          .journal_main {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 20px;
-            box-shadow: -5px 7.5px 10px #5f5959a6;
-            border-radius: 12px;
-            padding: 15px 20px 25px 20px;
-            background: linear-gradient(transparent 50%, #CAE5FF 85%), url('https://via.placeholder.com/600x400/FFE4B5/000000?text=Samanta');
-            background-size: contain;
-            background-position: top;
-            background-repeat: no-repeat;
-            margin: 0 30px;
-          }
-
-          .image_container {
-            background: none;
-            order: -1;
-          }
-
-          .content_container {
-            order: 1;
-            width: 100%;
-          }
-
-          .welcome-section {
-            display: none;
-          }
-
-          .image_content {
-            font-size: 24px;
-            letter-spacing: 2px;
-            font-weight: 500;
-          }
-
-          .my_profile {
-            padding: 70px 25px 70px 35px;
-          }
-
-          .card-container {
-            margin: 20px 0 0 0;
-            padding: 0;
-            background: none;
-            border: none;
-            box-shadow: none;
-          }
-
-          .card-description {
-            font-size: 21px;
-          }
-
-          .my_profile img {
-            width: 60px;
-          }
-
-          .my_profile h3 {
-            font-size: 25px;
-          }
-
-          .outside-card {
-            margin: 30px 50px 120px 50px;
-            padding-bottom: 100px;
-            display: flex;
-            flex-direction: column;
-            gap: 25px;
-          }
-
-          .content_header {
-            margin-bottom: unset;
-          }
-
-          .content_header p {
-            margin: 0;
-            font-size: 23px;
-            font-weight: 500;
-          }
-
-          .my_profile_section {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-          }
-
-          .divider {
-            display: none;
-          }
-
-          .flex-nowrap {
-            display: flex;
-            flex-wrap: nowrap;
-          }
-        }
-      `}</style>
-
+      <div className="font-['Poppins',sans-serif] m-0 p-0 h-[calc(100vh-80px)] sm:h-[calc(100vh-90px)] md:h-[calc(100vh-100px)] lg:h-[calc(100vh-120px)] xl:h-[calc(100vh-139px)] 2xl:h-[calc(100vh-140px)]">
         {/* Desktop View */}
-        <div className="dashboard desktop-view" style={{ overflowX: 'hidden' }}>
-          <div className="welcome-section">
-            <p>Welcome back! Your <span>healthiest self</span> is just a click away. Let's take that next step together!</p>
-            <div className="welcome_divider"></div>
+        <div className="hidden lg:block overflow-x-hidden">
+          {/* Welcome Section */}
+          <div className="text-center mx-[70px] mt-[30px] mb-[30px]">
+            <p className="text-2xl font-medium text-black text-center leading-[34px] tracking-[1px] font-['Montserrat',sans-serif]">
+              Welcome back! Your <span className="text-[#0331B5] font-semibold">healthiest self</span> is just a click away. Let's take that next step together!
+            </p>
+            <div className="h-px bg-[#333333] w-4/5 max-w-[200px] mx-auto mt-[10px]"></div>
           </div>
 
-          <div className="journal_container">
-            <div className="card-container">
-              <div className="background-wrapper-desktop"></div>
-              <div className="journal_main">
-                <div className="image_container">
-                  <div className="user-info">Hi {userName}!</div>
-                  <img src="/SamantaGIF.gif" alt="Personal Health Manager" />
-                  <div className="image_content">
+          {/* Journal Container */}
+          <div className="relative w-full">
+            <div className="mx-[30px] mb-[75px] p-[30px] rounded-xl flex justify-center items-center bg-gradient-to-b from-white via-white to-[#CAE5FF] relative z-10 shadow-[0px_8px_20px_rgba(0,0,0,0.2)] border border-black/30">
+              {/* Main Grid */}
+              <div className="grid grid-cols-[1fr_auto_1fr] items-center justify-items-center mx-5 gap-20 w-full">
+                {/* Image Container */}
+                <div className="flex flex-col items-center gap-5">
+                  <div className="font-['Poppins',sans-serif] font-semibold text-[#0331B5] text-lg">
+                    Hi {userName}!
+                  </div>
+                  <img src="/SamantaGIF.gif" alt="Personal Health Manager" className='max-w-[450px]' />
+                  <div className="text-center text-black text-[23px] tracking-[2px] font-['Montserrat',sans-serif]">
                     <span>I Am Samantha, Your Personal Health Manager</span>
                   </div>
                 </div>
 
-                <div className="divider"></div>
+                {/* Divider */}
+                <div className="w-px bg-[#333333] min-h-[300px] self-center"></div>
 
-                <div className="content_container">
-                  <div className="content_header">
-                    <p>Your <span>health records</span> are just a click away.</p>
-                    <div className="content_divider"></div>
+                {/* Content Container */}
+                <div className="flex flex-col justify-center">
+                  <div className="mb-[10px]">
+                    <p className="text-center text-[18px] font-semibold m-0 font-['Poppins',sans-serif]">
+                      Your <span className="text-[#0331B5]">health records</span> are just a click away.
+                    </p>
+                    <div className="h-px bg-[#333333] w-4/5 max-w-[125px] mx-auto mt-[10px]"></div>
                   </div>
 
-                  <div className="my_profile default_profile" onClick={handleHFilesClick} >
-                    <div className="profile_row">
-                      <div className="image_wrapper">
-                        <img src="/aad67678cd2f3dbe434a2fe7cb0455b82a85482b.png" alt="H-Files" />
+                  {/* Profile Cards */}
+                  <div
+                    className="h-[65px] rounded-[17.5px] mb-6 bg-[#F9E380] shadow-[0px_5px_10px_#393838] flex items-center justify-between py-[65px] px-[25px] gap-[10px] cursor-pointer transition-all duration-300 hover:bg-[#F9E380]"
+                    onClick={handleHFilesClick}
+                  >
+                    <div className="flex items-center flex-1">
+                      <div className="w-[130px] h-[80px] overflow-hidden bg-white flex justify-center items-center border border-[#333333]/20 rounded-xl mr-5">
+                        <img
+                          src="/aad67678cd2f3dbe434a2fe7cb0455b82a85482b.png"
+                          alt="H-Files"
+                          className="w-[60px] h-[60px] object-cover"
+                        />
                       </div>
-                      <div className="my_profile_content">
-                        <h3>My H-Files</h3>
-                        <span className="card-description">We've organized all your family's health reports, right here for you.</span>
+                      <div className="flex flex-col gap-[5px] max-w-[75%]">
+                        <h3 className="text-black font-semibold text-[20px] m-0 font-['Poppins',sans-serif]">
+                          My H-Files
+                        </h3>
+                        <span className="text-black text-[11px] font-light font-['Montserrat',sans-serif]">
+                          We've organized all your family's health reports, right here for you.
+                        </span>
                       </div>
                     </div>
-                    <div className="card_icon">
+                    <div className="text-[#333333] text-xl">
                       <ChevronRight size={24} />
                     </div>
                   </div>
 
-                  <div className="my_profile " onClick={handleMedicalClick}>
-                    <div className="profile_row">
-                      <div className="image_wrapper">
-                        <img src="/Reception Page/health-report-icon.png" alt="Medical History" />
+                  <div
+                    className="h-[65px] rounded-[17.5px] mb-6 bg-white shadow-[0px_5px_10px_#393838] flex items-center justify-between py-[65px] px-[25px] gap-[10px] cursor-pointer transition-all duration-300 hover:bg-[#F9E380]"
+                    onClick={handleMedicalClick}
+                  >
+                    <div className="flex items-center flex-1">
+                      <div className="w-[130px] h-[80px] overflow-hidden bg-white flex justify-center items-center border border-[#333333]/20 rounded-xl mr-5">
+                        <img
+                          src="/my_medical_history.png"
+                          alt="Medical History"
+                          className="w-[50px] h-[50px] object-cover"
+                        />
                       </div>
-                      <div className="my_profile_content">
-                        <h3>My Medical History</h3>
-                        <span className="card-description">Access your family's complete medical history anytime.</span>
+                      <div className="flex flex-col gap-[5px] max-w-[75%]">
+                        <h3 className="text-black font-semibold text-[20px] m-0 font-['Poppins',sans-serif]">
+                          My Medical History
+                        </h3>
+                        <span className="text-black text-[11px] font-light font-['Montserrat',sans-serif]">
+                          Access your family's complete medical history anytime.
+                        </span>
                       </div>
                     </div>
-                    <div className="card_icon">
+                    <div className="text-[#333333] text-xl">
                       <ChevronRight size={24} />
                     </div>
                   </div>
 
-                  <div className="my_profile" >
-                    <div className="profile_row">
-                      <div className="image_wrapper">
-                        <img src="/Reception Page/journal.png" alt="Journal" />
+                  <div className="h-[65px] rounded-[17.5px] mb-6 bg-white shadow-[0px_5px_10px_#393838] flex items-center justify-between py-[65px] px-[25px] gap-[10px] cursor-pointer transition-all duration-300 hover:bg-[#F9E380]">
+                    <div className="flex items-center flex-1">
+                      <div className="w-[130px] h-[80px] overflow-hidden bg-white flex justify-center items-center border border-[#333333]/20 rounded-xl mr-5">
+                        <img
+                          src="Reception Page/journal.png"
+                          alt="Journal"
+                          className="w-[70px] h-[60px] object-cover"
+                        />
                       </div>
-                      <div className="my_profile_content">
-                        <h3>Journal</h3>
-                        <span className="card-description">Stay informed with doctor-written health articles.</span>
+                      <div className="flex flex-col gap-[5px] max-w-[75%]">
+                        <h3 className="text-black font-semibold text-[20px] m-0 font-['Poppins',sans-serif]">
+                          Journal
+                        </h3>
+                        <span className="text-black text-[11px] font-light font-['Montserrat',sans-serif]">
+                          Stay informed with doctor-written health articles.
+                        </span>
                       </div>
                     </div>
-                    <div className="card_icon">
+                    <div className="text-[#333333] text-xl">
                       <ChevronRight size={24} />
                     </div>
                   </div>
@@ -751,153 +146,249 @@ function Dashboard() {
           </div>
         </div>
 
-        {/* Mobile & Tablet View */}
-        <div className="dashboard mobile-view">
-          {/* Tablet View - Original Structure */}
-          <div className="tablet-only">
-            <div className="journal_container">
-              <div className="card-container">
-                <div className="journal_main">
-                  <div className="image_container">
-                    <div className="user-info">Hi {userName}!</div>
-                    <img src="/SamantaGIF.gif" alt="Personal Health Manager" />
-                    <div className="image_content">
-                      <span>I Am Samantha, Your Personal Health Manager</span>
+        {/* Tablet View */}
+        <div className="hidden md:block lg:hidden">
+          <div className="relative w-full">
+            <div className="mx-[30px] p-0 bg-none border-none shadow-none">
+              <div
+                className="flex flex-col items-center gap-5 shadow-[-5px_7.5px_10px_rgba(95,89,89,0.65)] rounded-xl py-[15px] px-5 pb-[25px] bg-gradient-to-b from-transparent via-transparent to-[#CAE5FF] bg-contain bg-top bg-no-repeat"
+                style={{
+                  backgroundImage: "url('https://via.placeholder.com/600x400/FFE4B5/000000?text=Samanta')"
+                }}
+              >
+                {/* Image Container */}
+                <div className="flex flex-col items-center gap-5 order-first">
+                  <div className="font-['Poppins',sans-serif] font-semibold text-[#0331B5] text-lg">
+                    Hi {userName}!
+                  </div>
+                  <img
+                    src="/SamantaGIF.gif"
+                    alt="Personal Health Manager"
+                    className=" w-[350px] h-auto object-contain"
+                  />
+                  <div className="text-center text-black text-2xl tracking-[2px] font-medium font-['Montserrat',sans-serif]">
+                    <span>I Am Samantha, Your Personal Health Manager</span>
+                  </div>
+                </div>
+
+                {/* Content Container */}
+                <div className="order-1 w-full">
+                  <div
+                    className="h-[65px] rounded-[17.5px] mb-6 bg-[#F9E380] shadow-[0px_5px_10px_#393838] flex items-center justify-between py-[70px] px-[35px] gap-[10px] cursor-pointer transition-all duration-300"
+                    onClick={handleHFilesClick}
+                  >
+                    <div className="flex items-center flex-1 flex-nowrap">
+                      <div className="w-[80px] h-[70px] overflow-hidden bg-white flex justify-center items-center border border-[#333333]/20 rounded-xl mr-5">
+                        <img
+                          src="/aad67678cd2f3dbe434a2fe7cb0455b82a85482b.png"
+                          alt="H-Files"
+                          className="w-[60px] h-[60px] object-cover"
+                        />
+                      </div>
+                      <div className="flex flex-col gap-[10px]">
+                        <h3 className="text-black font-semibold text-[25px] m-0 font-['Poppins',sans-serif]">
+                          My H-Files
+                        </h3>
+                        <span className="text-black text-[21px] font-light font-['Montserrat',sans-serif]">
+                          We've organized all your family's health reports, right here for you.
+                        </span>
+                      </div>
+                    </div>
+                    <div className="text-[#333333]">
+                      <ChevronRight size={20} />
                     </div>
                   </div>
-
-                  <div className="content_container" >
-                    <div className="my_profile default_profile" onClick={handleHFilesClick}>
-                      <div className="profile_row flex-nowrap">
-                        <div className="image_wrapper">
-                          <img
-                            src="/aad67678cd2f3dbe434a2fe7cb0455b82a85482b.png"
-                            alt="H-Files"
-                          />
-
-                        </div>
-                        <div className="my_profile_section"  onClick={handleHFilesClick}>
-                          <h3>My H-Files</h3>
-                          <span className="card-description">
-                            We've organized all your family's health reports, right here for you.
-                          </span>
-                        </div>
-                      </div>
-                      <div className="card_icon">
-                        <ChevronRight size={20} />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="outside-card">
-              <div className="content_header">
-                <p>Your <span>health records</span> are just a click away.</p>
-                <div className="content_divider"></div>
-              </div>
-
-              <div className="my_profile" onClick={handleMedicalClick} >
-                <div className="profile_row flex-nowrap">
-                  <div className="image_wrapper">
-                    <img src="/ea38dbe1df7c2a5e09475ac6a4b7ededbed17414.png" alt="Medical History" />
-                  </div>
-                  <div className="my_profile_section">
-                    <h3>My Medical History</h3>
-                    <span className="card-description">Access your family's complete medical history anytime.</span>
-                  </div>
-                </div>
-                <div className="card_icon">
-                  <ChevronRight size={20} />
-                </div>
-              </div>
-
-              <div className="my_profile" >
-                <div className="profile_row flex-nowrap">
-                  <div className="image_wrapper">
-                    <img src="/52dfa155236ba07b3722d5d6eb1a4294762ff447.png" alt="Journal" />
-                  </div>
-                  <div className="my_profile_section">
-                    <h3>Journal</h3>
-                    <span className="card-description">Stay informed with doctor-written health articles.</span>
-                  </div>
-                </div>
-                <div className="card_icon">
-                  <ChevronRight size={20} />
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Mobile View - New Structure */}
-          <div className="mobile-only">
-            <div className="mobile-container">
-              <div className="mobile-header">
-                <h1>Hi {userName}!</h1>
+          {/* Outside Card Section */}
+          <div className="mx-[50px] mb-[120px] pb-[100px] flex flex-col gap-[25px] mt-[30px]">
+            <div className="mb-0">
+              <p className="m-0 text-[23px] font-medium text-center font-['Poppins',sans-serif]">
+                Your <span className="text-[#0331B5]">health records</span> are just a click away.
+              </p>
+              <div className="h-px bg-[#333333] w-4/5 max-w-[125px] mx-auto mt-[10px]"></div>
+            </div>
+
+            <div
+              className="h-[65px] rounded-[17.5px] mb-6 bg-white shadow-[0px_5px_10px_#393838] flex items-center justify-between py-[70px] px-[35px] gap-[10px] cursor-pointer transition-all duration-300 hover:bg-[#F9E380]"
+              onClick={handleMedicalClick}
+            >
+              <div className="flex items-center flex-1 flex-nowrap">
+                <div className="w-[60px] h-[60px] overflow-hidden bg-white flex justify-center items-center border border-[#333333]/20 rounded-xl mr-5">
+                  <img
+                    src="/my_medical_history.png"
+                    alt="Medical History"
+                    className="w-[50px] h-[50px] object-cover"
+                  />
+                </div>
+                <div className="flex flex-col gap-[10px]">
+                  <h3 className="text-black font-semibold text-[25px] m-0 font-['Poppins',sans-serif]">
+                    My Medical History
+                  </h3>
+                  <span className="text-black text-[21px] font-light font-['Montserrat',sans-serif]">
+                    Access your family's complete medical history anytime.
+                  </span>
+                </div>
               </div>
+              <div className="text-[#333333]">
+                <ChevronRight size={20} />
+              </div>
+            </div>
 
-              <div className="mobile-samantha-section">
-                <div className="mobile-samantha-image">
-                    <img src="/SamantaGIF.gif" alt="Personal Health Manager" />
-
+            <div className="h-[65px] rounded-[17.5px] mb-6 bg-white shadow-[0px_5px_10px_#393838] flex items-center justify-between py-[70px] px-[35px] gap-[10px] cursor-pointer transition-all duration-300 hover:bg-[#F9E380]">
+              <div className="flex items-center flex-1 flex-nowrap">
+                <div className="w-[60px] h-[60px] overflow-hidden bg-white flex justify-center items-center border border-[#333333]/20 rounded-xl mr-5">
+                  <img
+                    src="/52dfa155236ba07b3722d5d6eb1a4294762ff447.png"
+                    alt="Journal"
+                    className="w-[50px] h-[50px] object-cover"
+                  />
                 </div>
-                <div className="mobile-samantha-text">
-                  I Am Samantha, Your Personal Health Manager
-                </div>
-                <div className="mobile-hfiles-card" onClick={handleHFilesClick}>
-                  <div className="mobile-hfiles-content">
-                    <img src="/aa3955112e28185d2195e877e084fc7c2fb504db.png" alt="Personal Health Manager" />
-                    <div className="mobile-hfiles-text">
-                      <h3>My H-Files</h3>
-                      <p>We've organized all your family's health reports, right here for you.</p>
-                    </div>
-                  </div>
-                  <ChevronRight size={20} />
+                <div className="flex flex-col gap-[10px]">
+                  <h3 className="text-black font-semibold text-[25px] m-0 font-['Poppins',sans-serif]">
+                    Journal
+                  </h3>
+                  <span className="text-black text-[21px] font-light font-['Montserrat',sans-serif]">
+                    Stay informed with doctor-written health articles.
+                  </span>
                 </div>
               </div>
-
-              <div className="mobile-records-section">
-                <div className="mobile-records-header">
-                  <h2>Your <span>health records</span> are just a click away.</h2>
-                  <div className="mobile-records-divider"></div>
-                </div>
-
-                <div className="mobile-card" onClick={handleMedicalClick}>
-                  <div className="mobile-card-content">
-                    <img src="/d3e5b47f6c0a3f656e1530f9131f0592186e4ddc.png" alt="Personal Health Manager" />
-                    <div className="mobile-card-text">
-                      <h3>My Medical History</h3>
-                      <p>Access your family's complete medical history anytime.</p>
-                    </div>
-                  </div>
-                  <div className="mobile-card-arrow">
-                    <ChevronRight size={20} />
-                  </div>
-                </div>
-
-                <div className="mobile-card" >
-                  <div className="mobile-card-content">
-                    <img
-                      src="/52dfa155236ba07b3722d5d6eb1a4294762ff447.png"
-                      alt="Personal Health Manager"
-                      width="50"
-                    />
-                    <div className="mobile-card-text">
-                      <h3>Journal</h3>
-                      <p>Stay informed with doctor-written health articles.</p>
-                    </div>
-                  </div>
-                  <div className="mobile-card-arrow">
-                    <ChevronRight size={20} />
-                  </div>
-                </div>
+              <div className="text-[#333333]">
+                <ChevronRight size={20} />
               </div>
             </div>
           </div>
         </div>
 
-      </>
+        {/* Mobile View */}
+        {/* Mobile View - Updated Design */}
+<div className="block md:hidden">
+  <div className="bg-white min-h-screen px-4 py-6">
+    
+    {/* Header Section */}
+    <div className="text-center mb-8">
+      <h1 className="text-2xl font-semibold text-[#2C3E50] mb-2 font-['Poppins',sans-serif]">
+        Hi {userName}!
+      </h1>
+    </div>
+
+    {/* Main Character Card */}
+    <div className="bg-gradient-to-b from-[#E8F4FD] to-[#F0F8FF]  rounded-[24px] p-3 mb-3 shadow-[0_8px_24px_rgba(0,0,0,0.1)] border border-[#E3F2FD]">
+      {/* Character Image */}
+      <div className="flex justify-center mb-4">
+        <div className="relative">
+          <img
+            src="/SamantaGIF.gif"
+            alt="Personal Health Manager"
+            className="w-[180px] h-[180px] object-contain"
+          />
+        </div>
+      </div>
+      
+      {/* Character Introduction */}
+      <div className="text-center mb-6">
+        <p className="text-base font-medium text-[#2C3E50] font-['Poppins',sans-serif] leading-relaxed">
+          I Am Samantha, Your Personal Health Manager
+        </p>
+      </div>
+
+      {/* Primary Action Card - My H-Files */}
+      <div
+        className="bg-gradient-to-r from-[#FFE082] to-[#FFCC02] rounded-[16px] p-2 flex items-center justify-between cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_6px_20px_rgba(255,204,2,0.3)]"
+        onClick={handleHFilesClick}
+      >
+        <div className="flex items-center flex-1">
+          <div className="w-[58px] h-[58px] bg-white rounded-[12px] mr-4 flex items-center justify-center shadow-sm overflow-hidden">
+            <img
+              src="/aad67678cd2f3dbe434a2fe7cb0455b82a85482b.png"
+              alt="H-Files"
+              className="w-[52px] h-[52px] object-contain"
+            />
+          </div>
+          <div className="flex-1">
+            <h3 className="text-[15px] font-semibold text-[#2C3E50] mb-1 font-['Poppins',sans-serif]">
+              My H-Files
+            </h3>
+            <p className="text-[11px] text-[#5D6D7E] font-['Montserrat',sans-serif] leading-tight">
+              We've organized all your family's health reports, right here for you.
+            </p>
+          </div>
+        </div>
+        <div className="ml-2">
+          <ChevronRight size={20} className="text-[#2C3E50]" />
+        </div>
+      </div>
+    </div>
+
+    {/* Secondary Options */}
+    <div className="space-y-4">
+      <div className="text-center mb-4">
+        <h2 className="text-sm font-medium text-[#2C3E50] font-['Poppins',sans-serif]">
+          Your <span className="text-[#0331B5] font-semibold">health records</span> are just a click away.
+        </h2>
+        <div className=" border border-black  w-[80px] mx-auto mt-2"></div>
+      </div>
+
+      {/* Medical History Card */}
+      <div
+        className="bg-white rounded-[16px] p-4 flex items-center justify-between shadow-[0_4px_16px_rgba(0,0,0,0.08)] cursor-pointer transition-all duration-300 hover:scale-[1.01] hover:shadow-[0_6px_20px_rgba(0,0,0,0.12)] border border-[#F8F9FA]"
+        onClick={handleMedicalClick}
+      >
+        <div className="flex items-center flex-1">
+          <div className="w-[58px] h-[58px] bg-white border border-gray-200 rounded-[12px] mr-4 flex items-center justify-center overflow-hidden">
+            <img
+              src="/my_medical_history.png"
+              alt="Medical History"
+              className="w-[52px] h-[52px] object-contain"
+            />
+          </div>
+          <div className="flex-1">
+            <h3 className="text-[15px] font-semibold text-[#2C3E50] mb-1 font-['Poppins',sans-serif]">
+              My Medical History
+            </h3>
+            <p className="text-[11px] text-[#5D6D7E] font-['Montserrat',sans-serif] leading-tight">
+              Access your family's complete medical history anytime.
+            </p>
+          </div>
+        </div>
+        <div className="ml-2">
+          <ChevronRight size={18} className="text-[#7F8C8D]" />
+        </div>
+      </div>
+
+      {/* Journal Card */}
+      <div className="bg-white rounded-[16px] p-4 flex items-center justify-between shadow-[0_4px_16px_rgba(0,0,0,0.10)] cursor-pointer transition-all duration-300 hover:scale-[1.01] hover:shadow-[0_6px_20px_rgba(0,0,0,0.12)] border border-[#F8F9FA]">
+        <div className="flex items-center flex-1">
+          <div className="w-[58px] h-[58px] bg-white border border-gray-200 rounded-[12px] mr-4 flex items-center justify-center overflow-hidden">
+            <img
+              src="/52dfa155236ba07b3722d5d6eb1a4294762ff447.png"
+              alt="Journal"
+              className="w-[42px] h-[42px] object-contain"
+            />
+          </div>
+          <div className="flex-1">
+            <h3 className="text-[17px] font-semibold text-[#2C3E50] mb-1 font-['Poppins',sans-serif]">
+              Journal
+            </h3>
+            <p className="text-[13px] text-[#5D6D7E] font-['Montserrat',sans-serif] leading-tight">
+              Stay informed with doctor-written health articles.
+            </p>
+          </div>
+        </div>
+        <div className="ml-2">
+          <ChevronRight size={18} className="text-[#7F8C8D]" />
+        </div>
+      </div>
+    </div>
+
+    {/* Bottom Spacing */}
+    <div className="h-8"></div>
+  </div>
+</div>
+      </div>
     </MasterHome>
   );
 }

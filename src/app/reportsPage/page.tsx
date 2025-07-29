@@ -8,6 +8,7 @@ import { ListReport, DeleteReport, MemberList, ReportEdit, ReportShare } from '.
 import { toast, ToastContainer } from 'react-toastify';
 import { decryptData } from '../utils/webCrypto';
 import VaccinationList from '../components/VaccinationList';
+import Search from '../components/Search';
 
 type Report = {
     userName(userName: any): unknown;
@@ -64,6 +65,10 @@ const ReportsPage = () => {
     const [userName, setUserName] = useState<string>('User');
     const [isSelectMode, setIsSelectMode] = useState(false);
     const [selectModeType, setSelectModeType] = useState<'share' | 'access' | null>(null);
+    const [paramUser, setParamUser] = useState() as any;
+    const [searchTerm, setSearchTerm] = useState('');
+    const [originalReports, setOriginalReports] = useState<Report[]>([]);
+
 
     const toggleDropdown = (id: any) => {
         setOpenDropdownId((prev) => (prev === id ? null : id));
@@ -72,11 +77,13 @@ const ReportsPage = () => {
     useEffect(() => {
         const userIdParam = searchParams.get('userId');
         const reportTypeParam = searchParams.get('reportType');
+        const usernameParam = searchParams.get('userName');
 
-        if (userIdParam && reportTypeParam) {
+        if (userIdParam && reportTypeParam && usernameParam) {
             setUserId(parseInt(userIdParam));
             setReportType(decodeURIComponent(reportTypeParam));
             fetchReports(parseInt(userIdParam), decodeURIComponent(reportTypeParam));
+            setParamUser(decodeURIComponent(usernameParam));
         } else {
             toast.error("Missing required parameters");
             router.push('/myHfiles');
@@ -89,22 +96,24 @@ const ReportsPage = () => {
 
             if (response && response.data && response.data.success) {
                 const apiResponse: ApiResponse = response.data;
-                setReports(apiResponse.data.reports || []);
+                const fetchedReports = apiResponse.data.reports || [];
+
+                // Store both original and current reports
+                setOriginalReports(fetchedReports);
+                setReports(fetchedReports);
                 setTotalReportsCount(apiResponse.data.totalReportsCount || 0);
-                // setUserNames(apiResponse.data.reports[0].userName)
                 setUserNames((apiResponse.data.reports[0].userName as unknown as string).split(" ")[0]);
-
-
             } else {
+                setOriginalReports([]);
                 setReports([]);
                 setTotalReportsCount(0);
                 toast.info("No reports found for this category");
             }
         } catch (error) {
             console.error("Error fetching reports:", error);
+            setOriginalReports([]);
             setReports([]);
             setTotalReportsCount(0);
-        } finally {
         }
     };
 
@@ -438,30 +447,76 @@ const ReportsPage = () => {
         setIsShareModalOpen(false);
     };
 
+    const handleSearch = (searchValue: string) => {
+        setSearchTerm(searchValue);
+
+        if (!searchValue.trim()) {
+            // Reset to show all original reports when search is empty
+            setReports(originalReports);
+        } else {
+            // Filter the original reports based on search term
+            const filtered = originalReports.filter(report => {
+                const nameMatch = report.reportName.toLowerCase().includes(searchValue.toLowerCase());
+                const typeMatch = report.reportType.toLowerCase().includes(searchValue.toLowerCase());
+                const userTypeMatch = report.userType.toLowerCase().includes(searchValue.toLowerCase());
+                const uploaderMatch = report.uploadedBy.toLowerCase().includes(searchValue.toLowerCase());
+
+                return nameMatch || typeMatch || userTypeMatch || uploaderMatch;
+            });
+            setReports(filtered);
+        }
+    };
+
+    useEffect(() => {
+        if (originalReports.length > 0) {
+            handleSearch(searchTerm);
+        }
+    }, [searchTerm, originalReports]);
+
     return (
         <MasterHome>
             <div className="min-h-[calc(100vh-140px)] bg-gray-50 p-2">
                 {/* Header */}
-                <div className="mb-6 ">
-                    <div className="flex items-center mb-4">
-                        <button
-                            onClick={() => router.push('/myHfiles')}
-                            className="flex items-center text-black cursor-pointer hover:text-blue-800 transition-colors"
-                        >
-                            <ArrowLeft className="w-5 h-5 mr-2" />
-                            Back
-                        </button>
-                    </div>
-                    <h1 className="text-md sm:text-2xl w-full flex justify-center font-bold">
-                        <span className="text-blue-800">{userNames}'s&nbsp;</span>
-                        <span className="text-gray-500">{reportType} Reports</span>
-                    </h1>
+                <div className="mb-6">
+                    {/* Flex row container */}
+                    <div className="flex items-center justify-between mb-4 relative mt-4">
+                        {/* Back button - fully left */}
+                        <div className="absolute left-0">
+                            <button
+                                onClick={() => router.push('/myHfiles')}
+                                className="flex items-center text-black cursor-pointer hover:text-blue-800 transition-colors"
+                            >
+                                <ArrowLeft className="w-5 h-5 mr-2" />
+                                Back
+                            </button>
+                        </div>
 
-                    <div className='border mt-2 mx-auto w-30'></div>
-                    <p className="text-gray-600 mt-1">
-                        {totalReportsCount} report{totalReportsCount !== 1 ? 's' : ''} found
-                    </p>
+                        {/* Centered Heading */}
+                        <h1 className="mx-auto text-md sm:text-xl md:text-2xl font-bold text-center">
+                            <span className="text-blue-800 font-poppins-600 font-semibold">
+                                {userNames ? `${userNames}'s` : `${paramUser}'s`}&nbsp;
+                            </span>
+                            <span className="text-gray-400">{reportType}</span>
+                        </h1>
+
+                        {/* Search - right side only on large screens */}
+                        <div className="absolute right-0 hidden lg:block mb-2">
+                            <Search onSearch={handleSearch} placeholder="Search" />
+                        </div>
+                    </div>
+
+
+
+                    {/* Mobile View (Only on small screens) */}
+                    <div className="border mt-2 mx-auto w-30 block lg:hidden"></div>
+                    <div className="sm:flex-1 flex justify-end lg:hidden">
+                        <Search onSearch={handleSearch} placeholder="Search" />
+                    </div>
+
+                    {/* Desktop View (Only on large screens and up) */}
+                    <div className="border-b-8 border-gray-200 mt-2 mx-auto hidden lg:block"></div>
                 </div>
+
 
                 {/* Action Buttons */}
                 <div className="flex items-center space-x-4 mb-4">
@@ -504,7 +559,7 @@ const ReportsPage = () => {
                                 onClick={handleShareButtonClick}
                                 className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 text-gray-900 transition-colors"
                             >
-                                <Share2 size={16} />
+                                {/* <Share2 size={16} /> */}
                                 <span>Share</span>
                             </button>
 
@@ -512,7 +567,7 @@ const ReportsPage = () => {
                                 onClick={handleAccessButtonClick}
                                 className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 text-gray-900 transition-colors"
                             >
-                                <Eye size={16} />
+                                {/* <Eye size={16} /> */}
                                 <span>Access</span>
                             </button>
 
@@ -534,7 +589,7 @@ const ReportsPage = () => {
 
                 {/* Reports Grid */}
                 {reports.length > 0 ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6 mt-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-6 mt-3">
                         {reports.map((report) => (
                             <div
                                 key={report.id}
@@ -579,7 +634,7 @@ const ReportsPage = () => {
                                 {/* Report Metadata */}
                                 <div className="p-4">
                                     <div className="flex items-start justify-between gap-2">
-                                        <h3 className="font-semibold text-blue-800 mb-2 truncate text-lg flex-1">
+                                        <h3 className="font-bold font-montserrat-700 text-blue-800 mb-2 truncate text-lg flex-1">
                                             {report.reportName}
                                         </h3>
                                         {!isSelectMode && (
@@ -618,15 +673,15 @@ const ReportsPage = () => {
 
                                     <div className="border border-gray-300 mb-2"></div>
 
-                                    <div className="space-y-1 text-sm text-gray-600 mb-4">
+                                    <div className="space-y-1 text-sm text-black mb-4">
                                         <div>
-                                            <span className="font-medium">Report Type:</span> {report.reportType}
+                                            <span className="font-black font-montserrat-700">Report Type:</span> {report.reportType}
                                         </div>
                                         <div>
-                                            <span className="font-medium">User Type:</span> {report.userType}
+                                            <span className="font-black font-montserrat-700">User Type:</span> {report.userType}
                                         </div>
                                         <div>
-                                            <span className="font-medium">Date:</span> {report.reportDate} {report.reportTime}
+                                            <span className="font-black font-montserrat-700">Date:</span> {report.reportDate} {report.reportTime}
                                         </div>
                                     </div>
 

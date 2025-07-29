@@ -80,7 +80,7 @@ export default function Folders() {
     const [searchTerm, setSearchTerm] = useState('');
     const [filteredFolderDataList, setFilteredFolderDataList] = useState<FolderData[]>([]);
 
-        const [memberList, setMemberList] = useState<Member[]>([]); 
+    const [memberList, setMemberList] = useState<Member[]>([]);
     const [selectedUser, setSelectedUser] = useState<string>('all');
 
     const getUserId = async (): Promise<number> => {
@@ -103,7 +103,7 @@ export default function Folders() {
                 return;
             }
             const includeArray = selectedUser !== 'all' ? [parseInt(selectedUser)] : [];
-            const response = await FolderList(currentUserId,includeArray)
+            const response = await FolderList(currentUserId, includeArray)
             const folders = response?.data?.data || [];
             setFolderDataList(folders);
             setFilteredFolderDataList(folders);
@@ -401,7 +401,7 @@ export default function Folders() {
         setSelectedFolderIds([]);
     };
 
-     const fetchMemberList = async () => {
+    const fetchMemberList = async () => {
         const currentUserId = await getUserId();
         try {
             const response = await MemberList(currentUserId);
@@ -542,20 +542,20 @@ export default function Folders() {
                     {/* User Dropdown */}
                     {/* <button className="flex items-center gap-3 h-[40px] border border-gray-400 text-gray-700 px-3 py-1.5 rounded-md text-sm hover:bg-gray-100"> */}
                     <div className="relative">
-                          <select
-                                        value={selectedUser}
-                                        onChange={(e) => setSelectedUser(e.target.value)}
-                                        className="appearance-none text-black border border-gray-400 px-3 md:px-4 py-2 pr-8 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm md:text-base"
-                                    >
-                                        <option value="all">Users</option>
-                                        {memberList.map((member) => (
-                                            <option key={member.id} value={member.id.toString()}>
-                                                {member.firstName}
-                                            </option>
-                                        ))}
-                                    </select>
-                                    <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 text-black" size={16} />
-                                    </div>
+                        <select
+                            value={selectedUser}
+                            onChange={(e) => setSelectedUser(e.target.value)}
+                            className="appearance-none text-black border border-gray-400 px-3 md:px-4 py-2 pr-8 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm md:text-base"
+                        >
+                            <option value="all">Users</option>
+                            {memberList.map((member) => (
+                                <option key={member.id} value={member.id.toString()}>
+                                    {member.firstName}
+                                </option>
+                            ))}
+                        </select>
+                        <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 text-black" size={16} />
+                    </div>
                     {/* </button> */}
                 </div>
 
