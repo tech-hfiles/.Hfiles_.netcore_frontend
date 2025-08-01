@@ -20,7 +20,7 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'test.testhfiles.in',
+        hostname: 'api.hfiles.in',
         port: '',
         pathname: '/**',
       },
